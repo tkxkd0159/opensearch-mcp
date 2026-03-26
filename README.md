@@ -39,7 +39,7 @@ curl http://localhost:8081/actuator
     -d '{"jsonrpc":"2.0","id":1,"method":"initialize","params":{"protocolVersion":"2025-03-26","capabilities":{},"clientInfo":{"name":"test","version":"1.0"}}}'
 
 # Upgrade to Streaming (Terminal 2)
-curl -N -X GET https://your-mcp-server.com/mcp \
+curl -N -X GET http://localhost:8080/mcp \
   -H "Accept: text/event-stream" \
   -H "Mcp-Session-Id: sess_abc123"
     
@@ -75,8 +75,9 @@ curl -X POST http://localhost:8080/mcp \
 ```
 
 
-## Testbed
+## Set up OpenSearch testbed
 ```shell
+export OPENSEARCH_INITIAL_ADMIN_PASSWORD=<your-password>
 docker compose -f testbed/compose.yml up -d
-curl -k -u admin:Mylongpasswordtest1! https://localhost:9200/
+curl -k -u admin:<your-password> https://localhost:9200/
 ```
