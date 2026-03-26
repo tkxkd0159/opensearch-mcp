@@ -12,6 +12,7 @@ dependencies {
     implementation(project(":opensearch-mcp-api"))
     implementation(libs.spring.boot.starter.webmvc)
     implementation(libs.spring.boot.starter.actuator)
+    implementation(libs.httpclient5)
     implementation(libs.spring.ai.starter.mcp.server.webmvc)
 
     annotationProcessor(platform(libs.spring.boot.dependencies))

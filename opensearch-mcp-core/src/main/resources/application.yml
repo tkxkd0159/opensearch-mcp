@@ -1,0 +1,29 @@
+spring:
+  application:
+    name: opensearch-mcp
+  ai:
+    mcp:
+      server:
+        name: o8h-mcp-server
+        protocol: STREAMABLE
+
+server:
+  port: 8080
+
+management:
+  server:
+    port: 8081
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+
+opensearch:
+  clusters:
+    - name: local
+      host: localhost
+      port: 9200
+      scheme: https
+      username:
+      password:
+      ssl-verification-disabled: true

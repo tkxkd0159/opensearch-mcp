@@ -8,7 +8,9 @@
 
 # Run the application
 ./gradlew :opensearch-mcp-core:bootRun
-./gradlew clean :opensearch-mcp-core:bootJar && java -jar build/libs/opensearch-mcp-core-0.0.1-SNAPSHOT.jar
+./gradlew clean :opensearch-mcp-core:bootJar && \
+java -jar build/libs/opensearch-mcp-core-0.0.1-SNAPSHOT.jar --spring.config.location=test.yml
+
 curl http://localhost:8081/actuator 
 
 # List all tasks
@@ -31,18 +33,10 @@ curl http://localhost:8081/actuator
 
 ```sh
 # Initialize a session (Terminal 1)
-curl -X POST http://localhost:8080/mcp \
-  -H "Content-Type: application/json" \
-  -d '{
-    "jsonrpc": "2.0",
-    "id": 1,
-    "method": "initialize",
-    "params": {
-      "protocolVersion": "2025-03-26",
-      "capabilities": {},
-      "clientInfo": { "name": "test-client", "version": "1.0" }
-    }
-  }'
+ curl -v -X POST http://localhost:8080/mcp \
+    -H "Content-Type: application/json" \
+    -H "Accept: text/event-stream, application/json" \
+    -d '{"jsonrpc":"2.0","id":1,"method":"initialize","params":{"protocolVersion":"2025-03-26","capabilities":{},"clientInfo":{"name":"test","version":"1.0"}}}'
 
 # Upgrade to Streaming (Terminal 2)
 curl -N -X GET https://your-mcp-server.com/mcp \
@@ -50,12 +44,39 @@ curl -N -X GET https://your-mcp-server.com/mcp \
   -H "Mcp-Session-Id: sess_abc123"
     
 # List available tools (Terminal 1)
+curl -s -X POST http://localhost:8080/mcp \
+  -H "Content-Type: application/json" \
+  -H "Accept: text/event-stream, application/json" \
+  -H "Mcp-Session-Id: eac10c11-ce01-4e01-81b1-bd9b82ffd126" \
+  -d '{"jsonrpc":"2.0","id":2,"method":"tools/list","params":{}}'
+
+# Call the tool (Terminal 1)
 curl -X POST http://localhost:8080/mcp \
   -H "Content-Type: application/json" \
+  -H "Accept: text/event-stream, application/json" \
+  -H "Mcp-Session-Id: <From-initialize-response-header>" \
+  -d '{"jsonrpc":"2.0","id":3,"method":"tools/call","params":{"name":"getClusterState","arguments":{}}}'
+
+curl -X POST http://localhost:8080/mcp \
+  -H "Content-Type: application/json" \
+  -H "Accept: text/event-stream, application/json" \
+  -H "Mcp-Session-Id: <From-initialize-response-header>" \
   -d '{
     "jsonrpc": "2.0",
     "id": 2,
-    "method": "tools/list",
-    "params": {}
+    "method": "tools/call",
+    "params": {
+      "name": "getClusterState",
+      "arguments": {
+        "clusterName": "local"
+      }
+    }
   }'
+```
+
+
+## Testbed
+```shell
+docker compose -f testbed/compose.yml up -d
+curl -k -u admin:Mylongpasswordtest1! https://localhost:9200/
 ```
