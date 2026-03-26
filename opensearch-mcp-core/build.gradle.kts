@@ -23,6 +23,7 @@ dependencies {
 
 tasks.withType<Test> {
     useJUnitPlatform()
+    systemProperty("spring.config.additional-location", "optional:file:${rootProject.projectDir}/_test.yml")
 }
 
 tasks.named<BootJar>("bootJar") {
