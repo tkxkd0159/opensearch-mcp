@@ -26,15 +26,16 @@ public class OpenSearchConfig {
 
     @Bean
     public Map<String, RestClient> openSearchClients(OpenSearchProperties properties) {
-        return properties.getClusters().stream()
+        // TODO(Task 2): wire map entries with url field
+        return properties.getClusters().entrySet().stream()
                 .collect(Collectors.toMap(
-                        OpenSearchProperties.ClusterProperties::getName,
-                        this::buildClient
+                        Map.Entry::getKey,
+                        e -> buildClient(e.getValue())
                 ));
     }
 
     private RestClient buildClient(OpenSearchProperties.ClusterProperties cluster) {
-        String baseUrl = "%s://%s:%d".formatted(cluster.getScheme(), cluster.getHost(), cluster.getPort());
+        String baseUrl = cluster.getUrl();
         String credentials = Base64.getEncoder().encodeToString(
                 (cluster.getUsername() + ":" + cluster.getPassword()).getBytes());
 
