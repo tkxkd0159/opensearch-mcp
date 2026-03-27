@@ -1,6 +1,12 @@
-package org.o8h.mcp.core.tool;
+package org.o8h.mcp.http.tool;
 
 import org.junit.jupiter.api.Test;
+import org.o8h.mcp.core.tool.ClusterHealthTool;
+import org.o8h.mcp.core.tool.GetAllocationTool;
+import org.o8h.mcp.core.tool.GetNodesTool;
+import org.o8h.mcp.core.tool.GetNodesHotThreadsTool;
+import org.o8h.mcp.core.tool.GetSegmentsTool;
+import org.o8h.mcp.core.tool.GetShardsTool;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 

@@ -4,6 +4,7 @@ import lombok.Getter;
 import lombok.Setter;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Setter
@@ -11,7 +12,7 @@ import java.util.List;
 @ConfigurationProperties(prefix = "opensearch")
 public class OpenSearchProperties {
 
-    private List<ClusterProperties> clusters;
+    private List<ClusterProperties> clusters = new ArrayList<>();
 
     @Setter
     @Getter

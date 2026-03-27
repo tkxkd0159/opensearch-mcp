@@ -1,10 +1,10 @@
-package org.o8h.mcp.core;
+package org.o8h.mcp.http;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
 @SpringBootTest
-class OpensearchMcpApplicationTests {
+class OpensearchMcpHttpApplicationTests {
 
     @Test
     void contextLoads() {

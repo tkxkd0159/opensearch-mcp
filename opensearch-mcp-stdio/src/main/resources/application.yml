@@ -1,0 +1,17 @@
+spring:
+  main:
+    web-application-type: none
+  ai:
+    mcp:
+      server:
+        stdio: true
+
+opensearch:
+  clusters:
+    - name: test
+      host: localhost
+      port: 9200
+      scheme: https
+      username: ${TEST_USER:admin}
+      password: ${TEST_PW}
+      ssl-verification-disabled: true

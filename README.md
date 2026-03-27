@@ -8,8 +8,8 @@
 
 # Run the application
 ./gradlew :opensearch-mcp-core:bootRun
-./gradlew clean :opensearch-mcp-core:bootJar && \
-java -jar build/libs/opensearch-mcp-core-0.0.1-SNAPSHOT.jar --spring.config.location=test.yml
+./gradlew clean :opensearch-mcp-http:bootJar :opensearch-mcp-stdio:bootJar
+java -jar build/libs/opensearch-mcp-http-0.0.1-SNAPSHOT.jar
 
 curl http://localhost:8081/actuator 
 

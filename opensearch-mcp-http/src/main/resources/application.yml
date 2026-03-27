@@ -20,10 +20,10 @@ management:
 
 opensearch:
   clusters:
-    - name: local
+    - name: test
       host: localhost
       port: 9200
       scheme: https
-      username:
-      password:
+      username: ${TEST_USER:admin}
+      password: ${TEST_PW}
       ssl-verification-disabled: true

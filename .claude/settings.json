@@ -1,7 +1,8 @@
 {
   "permissions": {
     "allow": [
-      "mcp__o8h-mcp-server__getClusterState"
+      "mcp__o8h-mcp-server__getClusterState",
+      "mcp__o8h-mcp-server__getClusterHealth"
     ]
   }
 }

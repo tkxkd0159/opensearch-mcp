@@ -1,0 +1,9 @@
+opensearch:
+  clusters:
+    - name: local
+      host: localhost
+      port: 9200
+      scheme: https
+      username:
+      password:
+      ssl-verification-disabled: true

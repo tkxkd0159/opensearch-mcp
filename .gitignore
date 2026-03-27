@@ -37,4 +37,4 @@ out/
 .vscode/
 
 ### Test ###
-test.yml
+config/test.yml

@@ -3,7 +3,7 @@ pluginManagement {
 }
 
 rootProject.name = "opensearch-mcp"
-include("opensearch-mcp-api", "opensearch-mcp-core")
+include("opensearch-mcp-core", "opensearch-mcp-http", "opensearch-mcp-stdio")
 
 dependencyResolutionManagement {
     repositoriesMode = RepositoriesMode.FAIL_ON_PROJECT_REPOS
