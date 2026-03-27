@@ -24,6 +24,7 @@ class OpenSearchPropertiesTest {
                 "opensearch.clusters.local.password=secret",
                 "opensearch.clusters.local.ssl-verification-disabled=true"
         ).run(ctx -> {
+            assertThat(ctx).hasNotFailed();
             OpenSearchProperties props = ctx.getBean(OpenSearchProperties.class);
             assertThat(props.getClusters()).containsKey("local");
             OpenSearchProperties.ClusterProperties local = props.getClusters().get("local");
@@ -40,14 +41,18 @@ class OpenSearchPropertiesTest {
                 "opensearch.clusters.local.url=https://localhost:9200",
                 "opensearch.clusters.prod.url=https://prod.example.com:9200"
         ).run(ctx -> {
+            assertThat(ctx).hasNotFailed();
             OpenSearchProperties props = ctx.getBean(OpenSearchProperties.class);
             assertThat(props.getClusters()).containsKeys("local", "prod");
+            assertThat(props.getClusters().get("local").getUrl()).isEqualTo("https://localhost:9200");
+            assertThat(props.getClusters().get("prod").getUrl()).isEqualTo("https://prod.example.com:9200");
         });
     }
 
     @Test
     void clusters_empty_returnsEmptyMap() {
         runner.run(ctx -> {
+            assertThat(ctx).hasNotFailed();
             OpenSearchProperties props = ctx.getBean(OpenSearchProperties.class);
             assertThat(props.getClusters()).isEmpty();
         });
