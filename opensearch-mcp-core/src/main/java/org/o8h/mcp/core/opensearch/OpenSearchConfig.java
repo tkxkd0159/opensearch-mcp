@@ -26,7 +26,6 @@ public class OpenSearchConfig {
 
     @Bean
     public Map<String, RestClient> openSearchClients(OpenSearchProperties properties) {
-        // TODO(Task 2): wire map entries with url field
         return properties.getClusters().entrySet().stream()
                 .collect(Collectors.toMap(
                         Map.Entry::getKey,
@@ -35,19 +34,20 @@ public class OpenSearchConfig {
     }
 
     private RestClient buildClient(OpenSearchProperties.ClusterProperties cluster) {
-        String baseUrl = cluster.getUrl();
-        String credentials = Base64.getEncoder().encodeToString(
-                (cluster.getUsername() + ":" + cluster.getPassword()).getBytes());
-
         RestClient.Builder builder = RestClient.builder()
-                .baseUrl(baseUrl)
-                .defaultHeader(HttpHeaders.AUTHORIZATION, "Basic " + credentials);
+                .baseUrl(cluster.getUrl())
+                .defaultHeader(HttpHeaders.AUTHORIZATION, "Basic " + encodeCredentials(cluster));
 
         if (cluster.isSslVerificationDisabled()) {
             builder.requestFactory(buildSslDisabledRequestFactory());
         }
 
         return builder.build();
+    }
+
+    private String encodeCredentials(OpenSearchProperties.ClusterProperties cluster) {
+        return Base64.getEncoder().encodeToString(
+                (cluster.getUsername() + ":" + cluster.getPassword()).getBytes());
     }
 
     private HttpComponentsClientHttpRequestFactory buildSslDisabledRequestFactory() {
