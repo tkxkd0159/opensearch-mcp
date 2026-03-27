@@ -65,8 +65,8 @@ public class McpToolConfig {
     }
 
     @Bean
-    public ListClustersTool listClustersTool(Map<String, RestClient> openSearchClients) {
-        return new ListClustersTool(openSearchClients);
+    public ListClustersTool listClustersTool(OpenSearchProperties properties) {
+        return new ListClustersTool(properties);
     }
 
     // ... one @Bean per tool ...
@@ -170,18 +170,22 @@ New tool that returns all registered cluster names. The AI client calls this fir
 ```java
 public class ListClustersTool {
 
-    private final Map<String, RestClient> clients;
+    private final OpenSearchProperties properties;
 
-    public ListClustersTool(Map<String, RestClient> clients) {
-        this.clients = clients;
+    public ListClustersTool(OpenSearchProperties properties) {
+        this.properties = properties;
     }
 
-    @Tool(description = "Lists all available OpenSearch cluster names that can be used as the clusterName parameter in other tools.")
-    public List<String> listClusters() {
-        return new ArrayList<>(clients.keySet());
+    @Tool(description = "Lists all available OpenSearch clusters with their name and URL. Use the name as the clusterName parameter in other tools.")
+    public List<Map<String, String>> listClusters() {
+        return properties.getClusters().entrySet().stream()
+                .map(e -> Map.of("name", e.getKey(), "url", e.getValue().getUrl()))
+                .toList();
     }
 }
 ```
+
+`ListClustersTool` is injected with `OpenSearchProperties` (not `Map<String, RestClient>`) so it can read both the cluster name and its URL.
 
 ---
 
