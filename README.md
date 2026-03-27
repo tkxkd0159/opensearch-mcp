@@ -3,18 +3,15 @@
 ```sh
 # :<subproject-directory-name>:<task-name>
 
-# Run tests
-./gradlew :opensearch-mcp-core:test
-
-# Run the application
-./gradlew :opensearch-mcp-core:bootRun
-./gradlew clean :opensearch-mcp-http:bootJar :opensearch-mcp-stdio:bootJar
-java -jar build/libs/opensearch-mcp-http-0.0.1-SNAPSHOT.jar
-
-curl http://localhost:8081/actuator 
-
 # List all tasks
 ./gradlew :opensearch-mcp-core:tasks
+
+# Run tests
+./gradlew test
+
+# Run the application
+./gradlew clean :opensearch-mcp-http:bootJar :opensearch-mcp-stdio:bootJar
+java -jar build/libs/opensearch-mcp-http-0.0.1-SNAPSHOT.jar # curl http://localhost:8081/actuator 
 ```
 
 
@@ -31,6 +28,10 @@ curl http://localhost:8081/actuator
 3. Interaction (POST): The client sends tool calls or resource requests via standard POSTs using the same Session ID.
 4. Asynchronous Delivery: The server pushes the results or notifications back through the open GET stream.
 
+---
+<details>
+    <summary>MCP Flow</summary>
+
 ```sh
 # Initialize a session (Terminal 1)
  curl -v -X POST http://localhost:8080/mcp \
@@ -38,7 +39,7 @@ curl http://localhost:8081/actuator
     -H "Accept: text/event-stream, application/json" \
     -d '{"jsonrpc":"2.0","id":1,"method":"initialize","params":{"protocolVersion":"2025-03-26","capabilities":{},"clientInfo":{"name":"test","version":"1.0"}}}'
 
-# Upgrade to Streaming (Terminal 2)
+# (optional) Upgrade to Streaming (Terminal 2)
 curl -N -X GET http://localhost:8080/mcp \
   -H "Accept: text/event-stream" \
   -H "Mcp-Session-Id: sess_abc123"
@@ -73,6 +74,7 @@ curl -X POST http://localhost:8080/mcp \
     }
   }'
 ```
+</details>
 
 
 ## Set up OpenSearch testbed

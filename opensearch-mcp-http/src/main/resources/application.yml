@@ -22,6 +22,6 @@ opensearch:
   clusters:
     local:
       url: https://localhost:9200
-      username:
-      password:
+      username: ${OPENSEARCH_USERNAME:admin}
+      password: ${OPENSEARCH_PASSWORD:}
       ssl-verification-disabled: true
