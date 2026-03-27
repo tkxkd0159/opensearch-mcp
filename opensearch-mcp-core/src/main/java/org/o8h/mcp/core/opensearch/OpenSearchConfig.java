@@ -26,27 +26,28 @@ public class OpenSearchConfig {
 
     @Bean
     public Map<String, RestClient> openSearchClients(OpenSearchProperties properties) {
-        return properties.getClusters().stream()
+        return properties.getClusters().entrySet().stream()
                 .collect(Collectors.toMap(
-                        OpenSearchProperties.ClusterProperties::getName,
-                        this::buildClient
+                        Map.Entry::getKey,
+                        e -> buildClient(e.getValue())
                 ));
     }
 
     private RestClient buildClient(OpenSearchProperties.ClusterProperties cluster) {
-        String baseUrl = "%s://%s:%d".formatted(cluster.getScheme(), cluster.getHost(), cluster.getPort());
-        String credentials = Base64.getEncoder().encodeToString(
-                (cluster.getUsername() + ":" + cluster.getPassword()).getBytes());
-
         RestClient.Builder builder = RestClient.builder()
-                .baseUrl(baseUrl)
-                .defaultHeader(HttpHeaders.AUTHORIZATION, "Basic " + credentials);
+                .baseUrl(cluster.getUrl())
+                .defaultHeader(HttpHeaders.AUTHORIZATION, "Basic " + encodeCredentials(cluster));
 
         if (cluster.isSslVerificationDisabled()) {
             builder.requestFactory(buildSslDisabledRequestFactory());
         }
 
         return builder.build();
+    }
+
+    private String encodeCredentials(OpenSearchProperties.ClusterProperties cluster) {
+        return Base64.getEncoder().encodeToString(
+                (cluster.getUsername() + ":" + cluster.getPassword()).getBytes());
     }
 
     private HttpComponentsClientHttpRequestFactory buildSslDisabledRequestFactory() {

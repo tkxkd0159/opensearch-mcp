@@ -2,12 +2,10 @@ package org.o8h.mcp.core.tool;
 
 import org.springframework.ai.tool.annotation.Tool;
 import org.springframework.ai.tool.annotation.ToolParam;
-import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClient;
 
 import java.util.Map;
 
-@Service
 public class GetSegmentsTool {
 
     private final Map<String, RestClient> clients;
@@ -18,7 +16,7 @@ public class GetSegmentsTool {
 
     @Tool(description = "Gets information about Lucene segments in OpenSearch indices, including memory usage, document counts, segment sizes, and whether segments are committed or searchable.")
     public String getSegments(
-            @ToolParam(description = "Name of the target OpenSearch cluster.") String clusterName,
+            @ToolParam(description = "Name of the target OpenSearch cluster. Call listClusters to see available names.", required = true) String clusterName,
             @ToolParam(description = "Index name or wildcard pattern to filter segments. Omit for all indices.", required = false) String index
     ) {
         RestClient client = clients.get(clusterName);

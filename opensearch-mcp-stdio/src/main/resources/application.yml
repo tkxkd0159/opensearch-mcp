@@ -1,17 +1,18 @@
 spring:
+  application:
+    name: opensearch-mcp
   main:
     web-application-type: none
   ai:
     mcp:
       server:
+        name: o8h-mcp-server
         stdio: true
 
 opensearch:
   clusters:
-    - name: test
-      host: localhost
-      port: 9200
-      scheme: https
-      username: ${TEST_USER:admin}
-      password: ${TEST_PW}
+    local:
+      url: https://localhost:9200
+      username: ${OPENSEARCH_USERNAME:admin}
+      password: ${OPENSEARCH_PASSWORD:}
       ssl-verification-disabled: true

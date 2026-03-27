@@ -2,12 +2,10 @@ package org.o8h.mcp.core.tool;
 
 import org.springframework.ai.tool.annotation.Tool;
 import org.springframework.ai.tool.annotation.ToolParam;
-import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClient;
 
 import java.util.Map;
 
-@Service
 public class GetShardsTool {
 
     private final Map<String, RestClient> clients;
@@ -18,7 +16,7 @@ public class GetShardsTool {
 
     @Tool(description = "Gets information about shards in an OpenSearch cluster, including shard state, size, node assignment, and primary/replica status.")
     public String getShards(
-            @ToolParam(description = "Name of the target OpenSearch cluster.") String clusterName,
+            @ToolParam(description = "Name of the target OpenSearch cluster. Call listClusters to see available names.", required = true) String clusterName,
             @ToolParam(description = "Index name or wildcard pattern to filter shards. Omit for all shards.", required = false) String index
     ) {
         RestClient client = clients.get(clusterName);

@@ -4,23 +4,20 @@ import lombok.Getter;
 import lombok.Setter;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 @Setter
 @Getter
 @ConfigurationProperties(prefix = "opensearch")
 public class OpenSearchProperties {
 
-    private List<ClusterProperties> clusters = new ArrayList<>();
+    private Map<String, ClusterProperties> clusters = new LinkedHashMap<>();
 
     @Setter
     @Getter
     public static class ClusterProperties {
-        private String name;
-        private String host = "localhost";
-        private int port = 9200;
-        private String scheme = "http";
+        private String url;
         private String username;
         private String password;
         private boolean sslVerificationDisabled = false;
