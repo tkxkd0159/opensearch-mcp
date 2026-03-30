@@ -1,13 +1,3 @@
 {
-  "mcpServers": {
-    "o8h-mcp-server-http": {
-      "type": "http",
-      "url": "http://localhost:8080/mcp"
-    },
-    "o8h-mcp-server-stdio": {
-      "type": "stdio",
-      "command": "java",
-      "args": ["-jar", "./build/libs/opensearch-mcp-stdio.jar"]
-    }
-  }
+  "mcpServers": {}
 }
