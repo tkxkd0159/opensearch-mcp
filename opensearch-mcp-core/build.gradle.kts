@@ -10,7 +10,7 @@ dependencies {
     implementation(libs.httpclient5)
     implementation(libs.spring.web)
     implementation(libs.spring.ai.starter.mcp.server)
-    compileOnly(libs.spring.boot.starter.webmvc)
+    compileOnly("jakarta.servlet:jakarta.servlet-api")
 
     annotationProcessor(platform(libs.spring.boot.dependencies))
     annotationProcessor(libs.spring.boot.configuration.processor)

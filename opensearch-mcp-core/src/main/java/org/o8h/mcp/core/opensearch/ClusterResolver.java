@@ -15,6 +15,7 @@ import javax.net.ssl.SSLContext;
 import java.security.KeyManagementException;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
+import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 import java.util.Map;
 
@@ -62,7 +63,7 @@ public class ClusterResolver {
         }
 
         boolean sslDisabled = "true".equalsIgnoreCase(request.getHeader(HEADER_SSL_DISABLED));
-        String credentials = Base64.getEncoder().encodeToString((username + ":" + password).getBytes());
+        String credentials = Base64.getEncoder().encodeToString((username + ":" + password).getBytes(StandardCharsets.UTF_8));
 
         RestClient.Builder builder = RestClient.builder()
                 .baseUrl(clusterUrl)
