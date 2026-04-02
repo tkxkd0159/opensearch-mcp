@@ -11,7 +11,7 @@
 
 # Run the application
 ./gradlew clean :opensearch-mcp-http:bootJar :opensearch-mcp-stdio:bootJar
-java -jar build/libs/opensearch-mcp-http-0.0.1-SNAPSHOT.jar # curl http://localhost:8081/actuator 
+java -jar build/libs/opensearch-mcp-http-0.0.1-SNAPSHOT.jar --spring.profiles.active=local # curl http://localhost:8081/actuator 
 ```
 
 

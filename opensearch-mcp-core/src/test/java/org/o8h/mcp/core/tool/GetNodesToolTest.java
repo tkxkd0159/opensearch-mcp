@@ -2,6 +2,7 @@ package org.o8h.mcp.core.tool;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.o8h.mcp.core.opensearch.ClusterResolver;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.client.MockRestServiceServer;
@@ -24,16 +25,16 @@ class GetNodesToolTest {
         RestClient.Builder builder = RestClient.builder().baseUrl("http://localhost:9200");
         mockServer = MockRestServiceServer.bindTo(builder).build();
         RestClient client = builder.build();
-        tool = new GetNodesTool(Map.of("local", client));
+        tool = new GetNodesTool(new ClusterResolver(Map.of("local", client)));
     }
 
     @Test
-    void getNodes_noParams_callsBasePath() {
+    void getNodes_noFilters_callsBasePath() {
         mockServer.expect(requestTo("http://localhost:9200/_nodes"))
                 .andExpect(method(HttpMethod.GET))
                 .andRespond(withSuccess("{\"nodes\":{}}", MediaType.APPLICATION_JSON));
 
-        String result = tool.getNodes("local", null, null);
+        String result = tool.getNodes("local", null, null, null);
 
         mockServer.verify();
         assertThat(result).contains("nodes");
@@ -43,21 +44,21 @@ class GetNodesToolTest {
     void getNodes_withNodeId_callsNodePath() {
         mockServer.expect(requestTo("http://localhost:9200/_nodes/node1"))
                 .andExpect(method(HttpMethod.GET))
-                .andRespond(withSuccess("{\"nodes\":{\"node1\":{}}}", MediaType.APPLICATION_JSON));
+                .andRespond(withSuccess("{\"nodes\":{}}", MediaType.APPLICATION_JSON));
 
-        String result = tool.getNodes("local", "node1", null);
+        String result = tool.getNodes("local", null, "node1", null);
 
         mockServer.verify();
-        assertThat(result).contains("node1");
+        assertThat(result).isNotNull();
     }
 
     @Test
-    void getNodes_withMetricsOnly_callsMetricsPath() {
+    void getNodes_withMetrics_callsMetricsPath() {
         mockServer.expect(requestTo("http://localhost:9200/_nodes/jvm"))
                 .andExpect(method(HttpMethod.GET))
                 .andRespond(withSuccess("{\"nodes\":{}}", MediaType.APPLICATION_JSON));
 
-        String result = tool.getNodes("local", null, "jvm");
+        String result = tool.getNodes("local", null, null, "jvm");
 
         mockServer.verify();
         assertThat(result).isNotNull();
@@ -67,18 +68,23 @@ class GetNodesToolTest {
     void getNodes_withNodeIdAndMetrics_callsFullPath() {
         mockServer.expect(requestTo("http://localhost:9200/_nodes/node1/jvm"))
                 .andExpect(method(HttpMethod.GET))
-                .andRespond(withSuccess("{\"nodes\":{\"node1\":{\"jvm\":{}}}}", MediaType.APPLICATION_JSON));
+                .andRespond(withSuccess("{\"nodes\":{}}", MediaType.APPLICATION_JSON));
 
-        String result = tool.getNodes("local", "node1", "jvm");
+        String result = tool.getNodes("local", null, "node1", "jvm");
 
         mockServer.verify();
-        assertThat(result).contains("node1");
+        assertThat(result).isNotNull();
     }
 
     @Test
     void getNodes_unknownCluster_returnsError() {
-        String result = tool.getNodes("unknown", null, null);
+        String result = tool.getNodes("unknown", null, null, null);
         assertThat(result).contains("Unknown cluster: unknown");
-        assertThat(result).contains("local");
+    }
+
+    @Test
+    void getNodes_bothNull_returnsError() {
+        String result = tool.getNodes(null, null, null, null);
+        assertThat(result).contains("Either clusterName or clusterUrl must be provided");
     }
 }

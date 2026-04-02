@@ -1,13 +1,22 @@
 {
   "mcpServers": {
-    "o8h-mcp-server-http": {
-      "type": "http",
-      "url": "http://localhost:8080/mcp"
-    },
     "o8h-mcp-server-stdio": {
       "type": "stdio",
       "command": "java",
       "args": ["-jar", "./build/libs/opensearch-mcp-stdio.jar"]
+    },
+    "o8h-mcp-server-http": {
+      "type": "http",
+      "url": "http://localhost:8080/mcp"
+    },
+    "opensearch-adhoc": {
+      "type": "http",
+      "url": "http://localhost:8080/mcp",
+      "headers": {
+        "X-OpenSearch-Username": "admin",
+        "X-OpenSearch-Password": "Mylonglongpassword1!",
+        "X-OpenSearch-SSL-Disabled": "true"
+      }
     },
     "auth-proxy-o8g": {
       "command": "npx",
