@@ -38,9 +38,11 @@ ClusterResolver
 ```
 
 Resolution rules (in order):
-1. If `clusterUrl` is non-null → read `X-OpenSearch-Username`, `X-OpenSearch-Password`, `X-OpenSearch-SSL-Disabled` from `RequestContextHolder`; build a fresh `RestClient` targeting `clusterUrl`. Not cached — credentials may differ per session.
-2. Else if `clusterName` is non-null → look up in `registeredClients`; return error string if unknown.
-3. Else → return error string (both null).
+1. If `clusterUrl` is non-null → read `X-OpenSearch-Username`, `X-OpenSearch-Password`, `X-OpenSearch-SSL-Disabled` from `RequestContextHolder`; build a fresh `RestClient` targeting `clusterUrl`. Not cached — credentials may differ per session. `clusterUrl` takes precedence if both params are provided.
+2. Else if `clusterName` is non-null → look up in `registeredClients`; throw `IllegalArgumentException` if unknown.
+3. Else → throw `IllegalArgumentException` (both null).
+
+`resolve()` either returns a valid `RestClient` or throws `IllegalArgumentException`. Tools catch the exception and return `e.getMessage()` as the tool response string — consistent with the existing null-check pattern.
 
 `X-OpenSearch-SSL-Disabled` defaults to `false` (SSL verified) when the header is absent.
 
