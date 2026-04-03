@@ -19,14 +19,11 @@ public class GetNodesTool {
             @ToolParam(description = "Comma-separated node IDs or names to filter. Omit for all nodes.", required = false) String nodeId,
             @ToolParam(description = "Comma-separated metrics categories to retrieve (e.g. settings, os, process, jvm, thread_pool, transport, http, plugins, ingest). Omit for all metrics.", required = false) String metrics
     ) {
-        try {
-            return clusterResolver.resolve(clusterName, clusterUrl).get()
-                    .uri(buildPath(nodeId, metrics))
-                    .retrieve()
-                    .body(String.class);
-        } catch (IllegalArgumentException e) {
-            return e.getMessage();
-        }
+        return ToolCallHelper.execute(() ->
+                clusterResolver.resolve(clusterName, clusterUrl).get()
+                        .uri(buildPath(nodeId, metrics))
+                        .retrieve()
+                        .body(String.class));
     }
 
     private String buildPath(String nodeId, String metrics) {

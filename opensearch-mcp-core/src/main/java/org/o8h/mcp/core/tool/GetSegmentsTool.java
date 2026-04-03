@@ -18,14 +18,11 @@ public class GetSegmentsTool {
             @ToolParam(description = "Direct URL of an OpenSearch cluster (e.g. https://my-cluster:9200). Use for ad-hoc access without pre-registration. Requires X-OpenSearch-Username and X-OpenSearch-Password headers on the MCP client. Omit if using clusterName.", required = false) String clusterUrl,
             @ToolParam(description = "Index name or wildcard pattern to filter segments. Omit for all indices.", required = false) String index
     ) {
-        try {
-            return clusterResolver.resolve(clusterName, clusterUrl).get()
-                    .uri(buildPath(index) + "?v=true&format=json")
-                    .retrieve()
-                    .body(String.class);
-        } catch (IllegalArgumentException e) {
-            return e.getMessage();
-        }
+        return ToolCallHelper.execute(() ->
+                clusterResolver.resolve(clusterName, clusterUrl).get()
+                        .uri(buildPath(index) + "?v=true&format=json")
+                        .retrieve()
+                        .body(String.class));
     }
 
     private String buildPath(String index) {

@@ -9,6 +9,7 @@ import org.springframework.web.client.RestClient;
 
 import org.springframework.http.HttpStatus;
 
+import java.io.IOException;
 import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -16,6 +17,7 @@ import static org.springframework.test.web.client.match.MockRestRequestMatchers.
 import static org.springframework.test.web.client.match.MockRestRequestMatchers.header;
 import static org.springframework.test.web.client.match.MockRestRequestMatchers.method;
 import static org.springframework.test.web.client.match.MockRestRequestMatchers.requestTo;
+import static org.springframework.test.web.client.response.MockRestResponseCreators.withException;
 import static org.springframework.test.web.client.response.MockRestResponseCreators.withStatus;
 import static org.springframework.test.web.client.response.MockRestResponseCreators.withSuccess;
 
@@ -134,5 +136,20 @@ class GenericOpenSearchApiToolTest {
                 null, null, null);
 
         assertThat(result).contains("Invalid method: INVALID");
+    }
+
+    @Test
+    void callApi_networkFailure_returnsNetworkError() {
+        mockServer.expect(requestTo("http://localhost:9200/_cluster/health"))
+                .andExpect(method(org.springframework.http.HttpMethod.GET))
+                .andRespond(withException(new IOException("Connection refused")));
+
+        String result = toolWritesEnabled.callApi(
+                "local", null, "/_cluster/health", "GET",
+                null, null, null);
+
+        mockServer.verify();
+        assertThat(result).startsWith("Network error:");
+        assertThat(result).contains("Connection refused");
     }
 }

@@ -19,14 +19,11 @@ public class ClusterStateTool {
             @ToolParam(description = "Comma-separated metrics to retrieve (nodes, metadata, blocks, routing_table, routing_nodes, version, state_uuid). Omit for all metrics.", required = false) String metrics,
             @ToolParam(description = "Comma-separated index names or wildcards to filter. Omit for all indices.", required = false) String indices
     ) {
-        try {
-            return clusterResolver.resolve(clusterName, clusterUrl).get()
-                    .uri(buildPath(metrics, indices))
-                    .retrieve()
-                    .body(String.class);
-        } catch (IllegalArgumentException e) {
-            return e.getMessage();
-        }
+        return ToolCallHelper.execute(() ->
+                clusterResolver.resolve(clusterName, clusterUrl).get()
+                        .uri(buildPath(metrics, indices))
+                        .retrieve()
+                        .body(String.class));
     }
 
     private String buildPath(String metrics, String indices) {

@@ -8,6 +8,7 @@ import org.springframework.ai.tool.annotation.ToolParam;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.web.client.RestClient;
+import org.springframework.web.client.ResourceAccessException;
 import org.springframework.web.client.RestClientResponseException;
 import org.springframework.web.util.UriBuilder;
 
@@ -86,11 +87,14 @@ public class GenericOpenSearchApiTool {
 
             return requestSpec.retrieve().body(String.class);
 
+        } catch (IllegalArgumentException e) {
+            return e.getMessage();
         } catch (RestClientResponseException e) {
             return e.getResponseBodyAsString();
-        } catch (Exception e) {
-            log.error("callApi failed: clusterName={}, path={}, method={}", clusterName, path, method, e);
-            return e.getClass().getSimpleName() + ": " + e.getMessage();
+        } catch (ResourceAccessException e) {
+            log.warn("callApi network error: clusterName={}, path={}, method={}: {}",
+                    clusterName, path, method, e.getMessage());
+            return "Network error: " + e.getMessage();
         }
     }
 }

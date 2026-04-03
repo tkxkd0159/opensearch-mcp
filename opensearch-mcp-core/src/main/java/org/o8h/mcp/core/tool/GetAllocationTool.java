@@ -18,14 +18,11 @@ public class GetAllocationTool {
             @ToolParam(description = "Direct URL of an OpenSearch cluster (e.g. https://my-cluster:9200). Use for ad-hoc access without pre-registration. Requires X-OpenSearch-Username and X-OpenSearch-Password headers on the MCP client. Omit if using clusterName.", required = false) String clusterUrl,
             @ToolParam(description = "Node ID or name to filter allocation info for a specific node. Omit for all nodes.", required = false) String nodeId
     ) {
-        try {
-            return clusterResolver.resolve(clusterName, clusterUrl).get()
-                    .uri(buildPath(nodeId) + "?v=true&format=json")
-                    .retrieve()
-                    .body(String.class);
-        } catch (IllegalArgumentException e) {
-            return e.getMessage();
-        }
+        return ToolCallHelper.execute(() ->
+                clusterResolver.resolve(clusterName, clusterUrl).get()
+                        .uri(buildPath(nodeId) + "?v=true&format=json")
+                        .retrieve()
+                        .body(String.class));
     }
 
     private String buildPath(String nodeId) {
