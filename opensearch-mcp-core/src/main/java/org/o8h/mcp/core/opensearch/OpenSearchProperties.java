@@ -14,6 +14,8 @@ public class OpenSearchProperties {
 
     private Map<String, ClusterProperties> clusters = new LinkedHashMap<>();
 
+    private boolean writeEnabled = true;
+
     @Setter
     @Getter
     public static class ClusterProperties {

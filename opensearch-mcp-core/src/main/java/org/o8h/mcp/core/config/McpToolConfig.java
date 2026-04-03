@@ -60,6 +60,12 @@ public class McpToolConfig {
     }
 
     @Bean
+    public GenericOpenSearchApiTool genericOpenSearchApiTool(
+            ClusterResolver clusterResolver, OpenSearchProperties properties) {
+        return new GenericOpenSearchApiTool(clusterResolver, properties.isWriteEnabled());
+    }
+
+    @Bean
     public ToolCallbackProvider allTools(
             ClusterHealthTool clusterHealthTool,
             ClusterStateTool clusterStateTool,
@@ -68,13 +74,14 @@ public class McpToolConfig {
             GetNodesTool getNodesTool,
             GetNodesHotThreadsTool getNodesHotThreadsTool,
             GetAllocationTool getAllocationTool,
-            ListClustersTool listClustersTool
+            ListClustersTool listClustersTool,
+            GenericOpenSearchApiTool genericOpenSearchApiTool
     ) {
         return MethodToolCallbackProvider.builder()
                 .toolObjects(
                         clusterHealthTool, clusterStateTool, getShardsTool,
                         getSegmentsTool, getNodesTool, getNodesHotThreadsTool,
-                        getAllocationTool, listClustersTool
+                        getAllocationTool, listClustersTool, genericOpenSearchApiTool
                 )
                 .build();
     }

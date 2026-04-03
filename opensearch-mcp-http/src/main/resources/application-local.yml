@@ -1,3 +1,4 @@
 logging:
   level:
     org.springframework.web.filter.CommonsRequestLoggingFilter: DEBUG
+    org.o8h.mcp.core.tool: DEBUG

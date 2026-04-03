@@ -34,7 +34,7 @@ java -jar build/libs/opensearch-mcp-http-0.0.1-SNAPSHOT.jar --spring.profiles.ac
 
 ```sh
 # Initialize a session (Terminal 1)
- curl -v -X POST http://localhost:8080/mcp \
+curl -v -X POST http://localhost:8080/mcp \
     -H "Content-Type: application/json" \
     -H "Accept: text/event-stream, application/json" \
     -d '{"jsonrpc":"2.0","id":1,"method":"initialize","params":{"protocolVersion":"2025-03-26","capabilities":{},"clientInfo":{"name":"test","version":"1.0"}}}'
@@ -42,37 +42,14 @@ java -jar build/libs/opensearch-mcp-http-0.0.1-SNAPSHOT.jar --spring.profiles.ac
 # (optional) Upgrade to Streaming (Terminal 2)
 curl -N -X GET http://localhost:8080/mcp \
   -H "Accept: text/event-stream" \
-  -H "Mcp-Session-Id: sess_abc123"
+  -H "Mcp-Session-Id: <returned-session-id>"
     
 # List available tools (Terminal 1)
 curl -s -X POST http://localhost:8080/mcp \
   -H "Content-Type: application/json" \
   -H "Accept: text/event-stream, application/json" \
-  -H "Mcp-Session-Id: eac10c11-ce01-4e01-81b1-bd9b82ffd126" \
+  -H "Mcp-Session-Id: <returned-session-id>" \
   -d '{"jsonrpc":"2.0","id":2,"method":"tools/list","params":{}}'
-
-# Call the tool (Terminal 1)
-curl -X POST http://localhost:8080/mcp \
-  -H "Content-Type: application/json" \
-  -H "Accept: text/event-stream, application/json" \
-  -H "Mcp-Session-Id: <From-initialize-response-header>" \
-  -d '{"jsonrpc":"2.0","id":3,"method":"tools/call","params":{"name":"getClusterState","arguments":{}}}'
-
-curl -X POST http://localhost:8080/mcp \
-  -H "Content-Type: application/json" \
-  -H "Accept: text/event-stream, application/json" \
-  -H "Mcp-Session-Id: <From-initialize-response-header>" \
-  -d '{
-    "jsonrpc": "2.0",
-    "id": 2,
-    "method": "tools/call",
-    "params": {
-      "name": "getClusterState",
-      "arguments": {
-        "clusterName": "local"
-      }
-    }
-  }'
 ```
 </details>
 

@@ -20,9 +20,11 @@ management:
 
 logging:
   level:
-    org.apache.catalina.connector.ClientAbortException: OFF
+    root: INFO
+    org.apache.tomcat.util.net.NioEndpoint: OFF
 
 opensearch:
+  write-enabled: true
   clusters:
     local:
       url: https://localhost:9200
