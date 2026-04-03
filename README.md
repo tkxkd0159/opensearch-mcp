@@ -4,13 +4,13 @@
 # :<subproject-directory-name>:<task-name>
 
 # List all tasks
-./gradlew :opensearch-mcp-core:tasks
+./gradlew tasks
 
 # Run tests
 ./gradlew test
 
 # Run the application
-./gradlew clean :opensearch-mcp-http:bootJar :opensearch-mcp-stdio:bootJar
+./gradlew clean bootJar
 java -jar build/libs/opensearch-mcp-http-0.0.1-SNAPSHOT.jar --spring.profiles.active=local # curl http://localhost:8081/actuator 
 ```
 
@@ -51,12 +51,11 @@ curl -s -X POST http://localhost:8080/mcp \
   -H "Mcp-Session-Id: <returned-session-id>" \
   -d '{"jsonrpc":"2.0","id":2,"method":"tools/list","params":{}}'
 ```
-</details>
 
+Using MCP client:
+```text
+Add document to 'logs' index. The document is {"message": "MCP test", "@timestamp": "$(date -u +%Y-%m-%dT%H:%M:%SZ)"}
 
-## Set up OpenSearch testbed
-```shell
-export OPENSEARCH_INITIAL_ADMIN_PASSWORD=<your-password>
-docker compose -f testbed/compose.yml up -d
-curl -k -u admin:<your-password> https://localhost:9200/
+Return documents whose timestamp is within the last 120 minutes from the `logs` index on the `local` OpenSearch cluster
 ```
+</details>

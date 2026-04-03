@@ -5,7 +5,7 @@ plugins {
 }
 
 group = "org.o8h"
-version = "0.0.1-SNAPSHOT"
+version = "latest-SNAPSHOT"
 
 java {
     toolchain {

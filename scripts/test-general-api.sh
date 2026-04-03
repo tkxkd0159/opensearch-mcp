@@ -1,7 +1,6 @@
 #!/usr/bin/env bash
 
 source ./scripts/_get_session.sh
-
 # Call GenericOpenSearchApiTool — index a document (requires opensearch.write-enabled=true)
 curl -X POST http://localhost:8080/mcp \
   -H "Content-Type: application/json" \

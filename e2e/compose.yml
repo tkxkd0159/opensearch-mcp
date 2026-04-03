@@ -47,6 +47,23 @@ services:
     networks:
       - opensearch-net
 
+  opensearch-mcp:
+    image: opensearch-mcp-http:latest
+    container_name: opensearch-mcp
+    environment:
+      - OPENSEARCH_USERNAME=admin
+      - OPENSEARCH_PASSWORD=${OPENSEARCH_INITIAL_ADMIN_PASSWORD}
+    volumes:
+      - ./application.yml:/app/config/application.yml
+    ports:
+      - "8080:8080"
+      - "8081:8081"
+    networks:
+      - opensearch-net
+    depends_on:
+      - opensearch-node1
+      - opensearch-node2
+
 volumes:
   opensearch-data1:
   opensearch-data2:
