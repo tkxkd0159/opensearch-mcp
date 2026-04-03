@@ -18,6 +18,10 @@ management:
       exposure:
         include: "*"
 
+logging:
+  level:
+    org.apache.catalina.connector.ClientAbortException: OFF
+
 opensearch:
   clusters:
     local:
