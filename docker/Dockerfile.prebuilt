@@ -1,0 +1,8 @@
+FROM eclipse-temurin:25-jre
+WORKDIR /app
+COPY build/libs/opensearch-mcp-http-*.jar app.jar
+EXPOSE 8080 8081
+ENTRYPOINT ["java", "-jar", "app.jar"]
+
+# podman buildx build -f docker/Dockerfile.prebuilt --platform linux/amd64,linux/arm64 --manifest opensearch-mcp-http:latest .
+# podman manifest push opensearch-mcp-http:latest docker://<my-reg>/opensearch-mcp-http:latest
