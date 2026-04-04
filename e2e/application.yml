@@ -1,4 +1,0 @@
-opensearch:
-  clusters:
-    local:
-      url: https://opensearch-node1:9200

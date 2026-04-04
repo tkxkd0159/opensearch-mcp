@@ -9,12 +9,12 @@
       "type": "http",
       "url": "http://localhost:8080/mcp"
     },
-    "opensearch-adhoc": {
+    "o8h-mcp-server-http-adhoc": {
       "type": "http",
       "url": "http://localhost:8080/mcp",
       "headers": {
         "X-OpenSearch-Username": "admin",
-        "X-OpenSearch-Password": "Mylonglongpassword1!",
+        "X-OpenSearch-Password": "LocalAdmin123!",
         "X-OpenSearch-SSL-Disabled": "true"
       }
     },

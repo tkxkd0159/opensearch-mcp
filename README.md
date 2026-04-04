@@ -1,12 +1,9 @@
 ## Quick Start
 
 ```sh
-./gradlew tasks
-./gradlew test
-./gradlew clean bootJar
-java -jar build/libs/opensearch-mcp-http-0.0.1-SNAPSHOT.jar --spring.profiles.active=local # curl http://localhost:8081/actuator 
+./gradlew :opensearch-mcp-http:runLocalJar # curl http://localhost:8081/actuator
+./gradlew :opensearch-mcp-stdio:runLocalJar
 ```
-
 
 ## MCP (Streamable HTTP transport)
 

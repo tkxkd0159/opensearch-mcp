@@ -26,6 +26,22 @@ tasks.withType<Test> {
     systemProperty("spring.config.additional-location", "optional:file:${rootProject.projectDir}/_test.yml")
 }
 
-tasks.named<BootJar>("bootJar") {
+val bootJarTask = tasks.named<BootJar>("bootJar") {
     destinationDirectory = rootProject.layout.projectDirectory.dir("build/libs")
+}
+
+tasks.register<Exec>("runLocalJar") {
+    group = "application"
+    description = "Builds the HTTP boot jar and runs it with the local Spring profile."
+    dependsOn(tasks.named("clean"), bootJarTask)
+    workingDir = rootProject.projectDir
+
+    doFirst {
+        commandLine(
+            "${System.getProperty("java.home")}/bin/java",
+            "-jar",
+            bootJarTask.get().archiveFile.get().asFile.absolutePath,
+            "--spring.profiles.active=local",
+        )
+    }
 }
