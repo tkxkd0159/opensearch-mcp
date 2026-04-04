@@ -101,17 +101,28 @@ const keychain = (() => {
     if (process.platform === 'darwin') {
         return {
             load() {
-                return execSync(
-                    `security find-generic-password -s ${KEYCHAIN_SERVICE} -a ${KEYCHAIN_ACCOUNT} -w`,
-                    { stdio: ['ignore', 'pipe', 'ignore'] }
-                ).toString().trim();
+                const result = spawnSync(
+                    'security',
+                    ['find-generic-password', '-s', KEYCHAIN_SERVICE, '-a', KEYCHAIN_ACCOUNT, '-w'],
+                    { stdio: ['ignore', 'pipe', 'ignore'], encoding: 'utf8' }
+                );
+                if (result.status !== 0) {
+                    return null;
+                }
+                return (result.stdout || '').trim();
             },
             save(token) {
-                const escaped = token.replace(/'/g, `'\\''`);
-                execSync(`security add-generic-password -U -s ${KEYCHAIN_SERVICE} -a ${KEYCHAIN_ACCOUNT} -w '${escaped}'`);
+                spawnSync(
+                    'security',
+                    ['add-generic-password', '-U', '-s', KEYCHAIN_SERVICE, '-a', KEYCHAIN_ACCOUNT, '-w', token]
+                );
             },
             delete() {
-                execSync(`security delete-generic-password -s ${KEYCHAIN_SERVICE} -a ${KEYCHAIN_ACCOUNT}`, { stdio: 'ignore' });
+                spawnSync(
+                    'security',
+                    ['delete-generic-password', '-s', KEYCHAIN_SERVICE, '-a', KEYCHAIN_ACCOUNT],
+                    { stdio: 'ignore' }
+                );
             },
         };
     } else if (process.platform === 'win32') {
