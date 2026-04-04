@@ -5,12 +5,16 @@ plugins {
 }
 
 group = "org.o8h"
-version = "0.0.1-SNAPSHOT"
+version = "latest-SNAPSHOT"
 
 java {
     toolchain {
         languageVersion = JavaLanguageVersion.of(25)
     }
+}
+
+tasks.withType<JavaCompile> {
+    options.compilerArgs.add("-parameters")
 }
 
 configurations {
