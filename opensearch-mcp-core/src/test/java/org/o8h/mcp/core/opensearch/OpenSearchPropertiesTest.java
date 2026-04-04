@@ -57,4 +57,23 @@ class OpenSearchPropertiesTest {
             assertThat(props.getClusters()).isEmpty();
         });
     }
+
+    @Test
+    void writeEnabled_defaultsToTrue() {
+        runner.run(ctx -> {
+            assertThat(ctx).hasNotFailed();
+            OpenSearchProperties props = ctx.getBean(OpenSearchProperties.class);
+            assertThat(props.isWriteEnabled()).isTrue();
+        });
+    }
+
+    @Test
+    void writeEnabled_canBeDisabled() {
+        runner.withPropertyValues("opensearch.write-enabled=false")
+                .run(ctx -> {
+                    assertThat(ctx).hasNotFailed();
+                    OpenSearchProperties props = ctx.getBean(OpenSearchProperties.class);
+                    assertThat(props.isWriteEnabled()).isFalse();
+                });
+    }
 }

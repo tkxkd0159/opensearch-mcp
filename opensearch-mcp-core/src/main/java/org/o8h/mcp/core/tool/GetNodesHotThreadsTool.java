@@ -1,32 +1,28 @@
 package org.o8h.mcp.core.tool;
 
+import org.o8h.mcp.core.opensearch.ClusterResolver;
 import org.springframework.ai.tool.annotation.Tool;
 import org.springframework.ai.tool.annotation.ToolParam;
-import org.springframework.web.client.RestClient;
-
-import java.util.Map;
 
 public class GetNodesHotThreadsTool {
 
-    private final Map<String, RestClient> clients;
+    private final ClusterResolver clusterResolver;
 
-    public GetNodesHotThreadsTool(Map<String, RestClient> clients) {
-        this.clients = clients;
+    public GetNodesHotThreadsTool(ClusterResolver clusterResolver) {
+        this.clusterResolver = clusterResolver;
     }
 
     @Tool(description = "Gets information about hot threads on nodes in an OpenSearch cluster. Returns a breakdown of the hot threads on each selected node, useful for diagnosing performance issues.")
     public String getNodesHotThreads(
-            @ToolParam(description = "Name of the target OpenSearch cluster. Call listClusters to see available names.", required = true) String clusterName,
+            @ToolParam(description = "Name of the target registered OpenSearch cluster. Call listClusters to see available names. Omit if using clusterUrl.", required = false) String clusterName,
+            @ToolParam(description = "Direct URL of an OpenSearch cluster (e.g. https://my-cluster:9200). Use for ad-hoc access without pre-registration. Requires X-OpenSearch-Username and X-OpenSearch-Password headers on the MCP client. Omit if using clusterName.", required = false) String clusterUrl,
             @ToolParam(description = "Comma-separated node IDs or names to filter. Omit for all nodes.", required = false) String nodeId
     ) {
-        RestClient client = clients.get(clusterName);
-        if (client == null) {
-            return "Unknown cluster: " + clusterName + ". Available clusters: " + clients.keySet();
-        }
-        return client.get()
-                .uri(buildPath(nodeId))
-                .retrieve()
-                .body(String.class);
+        return ToolCallHelper.execute(() ->
+                clusterResolver.resolve(clusterName, clusterUrl).get()
+                        .uri(buildPath(nodeId))
+                        .retrieve()
+                        .body(String.class));
     }
 
     private String buildPath(String nodeId) {

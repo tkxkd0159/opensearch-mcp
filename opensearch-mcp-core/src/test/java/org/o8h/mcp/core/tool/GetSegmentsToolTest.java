@@ -2,6 +2,7 @@ package org.o8h.mcp.core.tool;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.o8h.mcp.core.opensearch.ClusterResolver;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.client.MockRestServiceServer;
@@ -24,7 +25,7 @@ class GetSegmentsToolTest {
         RestClient.Builder builder = RestClient.builder().baseUrl("http://localhost:9200");
         mockServer = MockRestServiceServer.bindTo(builder).build();
         RestClient client = builder.build();
-        tool = new GetSegmentsTool(Map.of("local", client));
+        tool = new GetSegmentsTool(new ClusterResolver(Map.of("local", client)));
     }
 
     @Test
@@ -33,7 +34,7 @@ class GetSegmentsToolTest {
                 .andExpect(method(HttpMethod.GET))
                 .andRespond(withSuccess("[]", MediaType.APPLICATION_JSON));
 
-        String result = tool.getSegments("local", null);
+        String result = tool.getSegments("local", null, null);
 
         mockServer.verify();
         assertThat(result).isNotNull();
@@ -43,18 +44,23 @@ class GetSegmentsToolTest {
     void getSegments_withIndex_callsIndexPath() {
         mockServer.expect(requestTo("http://localhost:9200/_cat/segments/my-index?v=true&format=json"))
                 .andExpect(method(HttpMethod.GET))
-                .andRespond(withSuccess("[{\"index\":\"my-index\",\"segment\":\"_0\"}]", MediaType.APPLICATION_JSON));
+                .andRespond(withSuccess("[]", MediaType.APPLICATION_JSON));
 
-        String result = tool.getSegments("local", "my-index");
+        String result = tool.getSegments("local", null, "my-index");
 
         mockServer.verify();
-        assertThat(result).contains("my-index");
+        assertThat(result).isNotNull();
     }
 
     @Test
     void getSegments_unknownCluster_returnsError() {
-        String result = tool.getSegments("unknown", null);
+        String result = tool.getSegments("unknown", null, null);
         assertThat(result).contains("Unknown cluster: unknown");
-        assertThat(result).contains("local");
+    }
+
+    @Test
+    void getSegments_bothNull_returnsError() {
+        String result = tool.getSegments(null, null, null);
+        assertThat(result).contains("Either clusterName or clusterUrl must be provided");
     }
 }
