@@ -1,0 +1,12 @@
+logging:
+  level:
+    org.springframework.web.filter.CommonsRequestLoggingFilter: DEBUG
+    org.o8h.mcp.core.tool: DEBUG
+
+opensearch:
+  clusters:
+    local:
+      url: https://localhost:9200
+      username: ${OPENSEARCH_USERNAME:admin}
+      password: ${OPENSEARCH_PASSWORD:LocalAdmin123!}
+      ssl-verification-disabled: true

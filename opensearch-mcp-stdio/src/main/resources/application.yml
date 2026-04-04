@@ -9,10 +9,10 @@ spring:
         name: o8h-mcp-server
         stdio: true
 
+logging:
+  level:
+    root: INFO
+    org.apache.tomcat.util.net.NioEndpoint: OFF
+
 opensearch:
-  clusters:
-    local:
-      url: https://localhost:9200
-      username: ${OPENSEARCH_USERNAME:admin}
-      password: ${OPENSEARCH_PASSWORD:}
-      ssl-verification-disabled: true
+  write-enabled: true

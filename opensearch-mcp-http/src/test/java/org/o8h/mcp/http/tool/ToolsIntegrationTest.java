@@ -35,21 +35,21 @@ class ToolsIntegrationTest {
 
     @Test
     void getShards_allShards_returnsValidResponse() {
-        String result = getShardsTool.getShards("local", null);
+        String result = getShardsTool.getShards("local", null, null);
         assertThat(result).isNotNull();
         assertThat(result).doesNotContain("Unknown cluster");
     }
 
     @Test
     void getShards_withWildcard_returnsValidResponse() {
-        String result = getShardsTool.getShards("local", "*");
+        String result = getShardsTool.getShards("local", null, "*");
         assertThat(result).isNotNull();
         assertThat(result).doesNotContain("Unknown cluster");
     }
 
     @Test
     void clusterHealth_overall_returnsStatus() {
-        String result = clusterHealthTool.getClusterHealth("local", null);
+        String result = clusterHealthTool.getClusterHealth("local", null, null);
         assertThat(result).isNotNull();
         assertThat(result).contains("status");
         assertThat(result).doesNotContain("Unknown cluster");
@@ -57,21 +57,21 @@ class ToolsIntegrationTest {
 
     @Test
     void clusterHealth_withWildcard_returnsStatus() {
-        String result = clusterHealthTool.getClusterHealth("local", "*");
+        String result = clusterHealthTool.getClusterHealth("local", null, "*");
         assertThat(result).isNotNull();
         assertThat(result).doesNotContain("Unknown cluster");
     }
 
     @Test
     void getSegments_allSegments_returnsValidResponse() {
-        String result = getSegmentsTool.getSegments("local", null);
+        String result = getSegmentsTool.getSegments("local", null, null);
         assertThat(result).isNotNull();
         assertThat(result).doesNotContain("Unknown cluster");
     }
 
     @Test
     void getNodes_allNodes_returnsNodeInfo() {
-        String result = getNodesTool.getNodes("local", null, null);
+        String result = getNodesTool.getNodes("local", null, null, null);
         assertThat(result).isNotNull();
         assertThat(result).contains("nodes");
         assertThat(result).doesNotContain("Unknown cluster");
@@ -79,7 +79,7 @@ class ToolsIntegrationTest {
 
     @Test
     void getNodes_jvmMetrics_returnsJvmInfo() {
-        String result = getNodesTool.getNodes("local", null, "jvm");
+        String result = getNodesTool.getNodes("local", null, null, "jvm");
         assertThat(result).isNotNull();
         assertThat(result).contains("jvm");
         assertThat(result).doesNotContain("Unknown cluster");
@@ -87,14 +87,14 @@ class ToolsIntegrationTest {
 
     @Test
     void getNodesHotThreads_allNodes_returnsResponse() {
-        String result = getNodesHotThreadsTool.getNodesHotThreads("local", null);
+        String result = getNodesHotThreadsTool.getNodesHotThreads("local", null, null);
         assertThat(result).isNotNull();
         assertThat(result).doesNotContain("Unknown cluster");
     }
 
     @Test
     void getAllocation_allNodes_returnsAllocationInfo() {
-        String result = getAllocationTool.getAllocation("local", null);
+        String result = getAllocationTool.getAllocation("local", null, null);
         assertThat(result).isNotNull();
         assertThat(result).doesNotContain("Unknown cluster");
     }

@@ -1,0 +1,34 @@
+{
+  "mcpServers": {
+    "o8h-mcp-server-stdio": {
+      "type": "stdio",
+      "command": "java",
+      "args": ["-jar", "./build/libs/opensearch-mcp-stdio.jar"]
+    },
+    "o8h-mcp-server-http": {
+      "type": "http",
+      "url": "http://localhost:8080/mcp"
+    },
+    "o8h-mcp-server-http-adhoc": {
+      "type": "http",
+      "url": "http://localhost:8080/mcp",
+      "headers": {
+        "X-OpenSearch-Username": "admin",
+        "X-OpenSearch-Password": "LocalAdmin123!",
+        "X-OpenSearch-SSL-Disabled": "true"
+      }
+    },
+    "auth-proxy-o8g": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "file:./proxy/mcp-proxy-1.0.0.tgz",
+        "http://localhost:8080/mcp",
+        "--issuer-url", "your-issuer-url",
+        "--port", "9080",
+        "--client-id", "your-client-id",
+        "--scope", "openid email profile profile_preferred_username"
+      ]
+    }
+  }
+}

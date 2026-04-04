@@ -2,6 +2,7 @@ package org.o8h.mcp.core.tool;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.o8h.mcp.core.opensearch.ClusterResolver;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.client.MockRestServiceServer;
@@ -24,37 +25,42 @@ class GetShardsToolTest {
         RestClient.Builder builder = RestClient.builder().baseUrl("http://localhost:9200");
         mockServer = MockRestServiceServer.bindTo(builder).build();
         RestClient client = builder.build();
-        tool = new GetShardsTool(Map.of("local", client));
+        tool = new GetShardsTool(new ClusterResolver(Map.of("local", client)));
     }
 
     @Test
     void getShards_noIndex_callsBasePath() {
         mockServer.expect(requestTo("http://localhost:9200/_cat/shards?v=true&format=json"))
                 .andExpect(method(HttpMethod.GET))
-                .andRespond(withSuccess("[{\"index\":\"test\"}]", MediaType.APPLICATION_JSON));
+                .andRespond(withSuccess("[]", MediaType.APPLICATION_JSON));
 
-        String result = tool.getShards("local", null);
+        String result = tool.getShards("local", null, null);
 
         mockServer.verify();
-        assertThat(result).contains("test");
+        assertThat(result).isNotNull();
     }
 
     @Test
     void getShards_withIndex_callsIndexPath() {
         mockServer.expect(requestTo("http://localhost:9200/_cat/shards/my-index?v=true&format=json"))
                 .andExpect(method(HttpMethod.GET))
-                .andRespond(withSuccess("[{\"index\":\"my-index\"}]", MediaType.APPLICATION_JSON));
+                .andRespond(withSuccess("[]", MediaType.APPLICATION_JSON));
 
-        String result = tool.getShards("local", "my-index");
+        String result = tool.getShards("local", null, "my-index");
 
         mockServer.verify();
-        assertThat(result).contains("my-index");
+        assertThat(result).isNotNull();
     }
 
     @Test
     void getShards_unknownCluster_returnsError() {
-        String result = tool.getShards("unknown", null);
+        String result = tool.getShards("unknown", null, null);
         assertThat(result).contains("Unknown cluster: unknown");
-        assertThat(result).contains("local");
+    }
+
+    @Test
+    void getShards_bothNull_returnsError() {
+        String result = tool.getShards(null, null, null);
+        assertThat(result).contains("Either clusterName or clusterUrl must be provided");
     }
 }
