@@ -14,6 +14,9 @@ Use the Gradle wrapper from the repository root.
 - `docker compose up --build`: start the local OpenSearch cluster and HTTP MCP server.
 - `./scripts/test-cluster-health.sh`: smoke-test the HTTP MCP endpoint after session initialization.
 
+## Branching & Worktree Guidelines
+Develop each feature, bugfix, or refactor from a new git worktree instead of the base branch(main). Start from the appropriate base branch, create a fresh branch and worktree for the task, and keep the current worktree reserved for its existing branch context.
+
 ## Coding Style & Naming Conventions
 Target Java 25 and match the existing `org.o8h.mcp.*` package layout. Use 4-space indentation, PascalCase for classes, lowerCamelCase for methods and fields, and one public type per file. Keep tool classes small and explicit; prefer straightforward Spring wiring over broad abstractions. Gradle files use Kotlin DSL and should follow surrounding formatting because no formatter is configured in the build.
 
