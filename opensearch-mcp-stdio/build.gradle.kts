@@ -21,9 +21,10 @@ tasks.withType<Test> {
     useJUnitPlatform()
 }
 
-val bootJarTask = tasks.named<BootJar>("bootJar") {
-    destinationDirectory = rootProject.layout.projectDirectory.dir("build/libs")
-}
+val bootJarTask =
+    tasks.named<BootJar>("bootJar") {
+        destinationDirectory = rootProject.layout.projectDirectory.dir("build/libs")
+    }
 
 tasks.register<Exec>("runLocalJar") {
     group = "application"
@@ -35,7 +36,11 @@ tasks.register<Exec>("runLocalJar") {
         commandLine(
             "${System.getProperty("java.home")}/bin/java",
             "-jar",
-            bootJarTask.get().archiveFile.get().asFile.absolutePath,
+            bootJarTask
+                .get()
+                .archiveFile
+                .get()
+                .asFile.absolutePath,
             "--spring.profiles.active=local",
         )
     }

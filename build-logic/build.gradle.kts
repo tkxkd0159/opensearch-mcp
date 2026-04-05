@@ -4,4 +4,6 @@ plugins {
 
 dependencies {
     compileOnly(files(libs.javaClass.superclass.protectionDomain.codeSource.location))
+    implementation(libs.errorprone.gradle.plugin)
+    implementation(libs.spotless.gradle.plugin)
 }

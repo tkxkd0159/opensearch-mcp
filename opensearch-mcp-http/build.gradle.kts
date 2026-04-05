@@ -1,3 +1,4 @@
+import org.gradle.api.tasks.testing.Test
 import org.springframework.boot.gradle.tasks.bundling.BootJar
 
 plugins {
@@ -21,14 +22,32 @@ dependencies {
     testRuntimeOnly(libs.junit.platform.launcher)
 }
 
-tasks.withType<Test> {
+tasks.named<Test>("test") {
     useJUnitPlatform()
+    useJUnitPlatform {
+        excludeTags("integration")
+    }
     systemProperty("spring.config.additional-location", "optional:file:${rootProject.projectDir}/_test.yml")
 }
 
-val bootJarTask = tasks.named<BootJar>("bootJar") {
-    destinationDirectory = rootProject.layout.projectDirectory.dir("build/libs")
+val testSourceSet = the<SourceSetContainer>()["test"]
+
+tasks.register<Test>("integrationTest") {
+    description = "Runs integration tests that require local external services."
+    group = "verification"
+    testClassesDirs = testSourceSet.output.classesDirs
+    classpath = testSourceSet.runtimeClasspath
+    shouldRunAfter(tasks.named("test"))
+    useJUnitPlatform {
+        includeTags("integration")
+    }
+    systemProperty("spring.config.additional-location", "optional:file:${rootProject.projectDir}/_test.yml")
 }
+
+val bootJarTask =
+    tasks.named<BootJar>("bootJar") {
+        destinationDirectory = rootProject.layout.projectDirectory.dir("build/libs")
+    }
 
 tasks.register<Exec>("runLocalJar") {
     group = "application"
@@ -40,7 +59,11 @@ tasks.register<Exec>("runLocalJar") {
         commandLine(
             "${System.getProperty("java.home")}/bin/java",
             "-jar",
-            bootJarTask.get().archiveFile.get().asFile.absolutePath,
+            bootJarTask
+                .get()
+                .archiveFile
+                .get()
+                .asFile.absolutePath,
             "--spring.profiles.active=local",
         )
     }

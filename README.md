@@ -5,6 +5,19 @@
 ./gradlew :opensearch-mcp-stdio:runLocalJar
 ```
 
+## Development Checks
+
+```sh
+./gradlew test                             # deterministic unit/default suite
+./gradlew :opensearch-mcp-http:integrationTest
+./gradlew check                            # tests + Spotless + aggregate coverage + Javadoc
+./gradlew spotlessApply
+./gradlew jacocoAggregateReport
+./gradlew javadoc
+```
+
+`test` excludes HTTP integration tests that require a local OpenSearch cluster. Run `:opensearch-mcp-http:integrationTest` after starting the local stack, for example with `docker compose up --build`.
+
 Using MCP client:
 ```text
 Add a document to 'logs' index. The document is {"message": "MCP test", "@timestamp": "$(date -u +%Y-%m-%dT%H:%M:%SZ)"}
