@@ -9,7 +9,7 @@
 
 ```sh
 ./gradlew test                             # deterministic unit/default suite
-./gradlew :opensearch-mcp-http:integrationTest
+./gradlew integrationTest
 ./gradlew check                            # tests + Spotless + aggregate coverage + Javadoc
 ./gradlew spotlessApply
 ./gradlew jacocoAggregateReport
@@ -33,7 +33,7 @@ Most tools accept one of these connection inputs:
 - `clusterUrl`: an ad-hoc OpenSearch URL, typically with MCP client headers such as `X-OpenSearch-Username` and `X-OpenSearch-Password`
 
 | Tool                 | Purpose                                                                         | Key Parameters                                                                                               |
-|----------------------|---------------------------------------------------------------------------------|--------------------------------------------------------------------------------------------------------------|
+| -------------------- | ------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------ |
 | `listClusters`       | Lists registered OpenSearch clusters with their name and URL.                   | None                                                                                                         |
 | `getClusterHealth`   | Returns cluster or index health, including status, node count, and shard state. | `clusterName` or `clusterUrl`, optional `index`                                                              |
 | `getClusterState`    | Returns cluster state, including nodes, metadata, routing, and blocks.          | `clusterName` or `clusterUrl`, optional `metrics`, optional `indices`                                        |
