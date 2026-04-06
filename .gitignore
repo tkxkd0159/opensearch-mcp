@@ -39,3 +39,5 @@ out/
 
 ### Test ###
 config/test.yml
+
+.DS_Store

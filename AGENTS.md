@@ -7,8 +7,13 @@
 Use the Gradle wrapper from the repository root.
 
 - `./gradlew build`: build all modules and run the full test suite.
-- `./gradlew test`: run JUnit 5 tests across all modules.
+- `./gradlew test`: run the deterministic JUnit 5 suite across all modules.
+- `./gradlew check`: run tests, Spotless, aggregate JaCoCo coverage verification, and Javadoc generation.
 - `./gradlew :opensearch-mcp-core:test`: run core unit tests while iterating on tool logic.
+- `./gradlew :opensearch-mcp-http:integrationTest`: run HTTP integration tests that require a local OpenSearch cluster.
+- `./gradlew spotlessApply`: apply the repository formatter.
+- `./gradlew jacocoAggregateReport`: generate the aggregate coverage report.
+- `./gradlew javadoc`: generate Javadoc for all Java modules.
 - `./gradlew :opensearch-mcp-http:runLocalJar`: build and run the HTTP server with the `local` Spring profile.
 - `./gradlew :opensearch-mcp-stdio:runLocalJar`: build and run the stdio server locally.
 - `docker compose up --build`: start the local OpenSearch cluster and HTTP MCP server.

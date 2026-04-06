@@ -3,6 +3,7 @@ rootProject.name = "build-logic"
 dependencyResolutionManagement {
     repositories {
         gradlePluginPortal()
+        mavenCentral()
     }
     versionCatalogs {
         create("libs") {
