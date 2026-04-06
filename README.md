@@ -8,15 +8,14 @@
 ## Development Checks
 
 ```sh
-./gradlew test                             # deterministic unit/default suite
-./gradlew integrationTest
+# build -> check -> test
 ./gradlew check                            # tests + Spotless + aggregate coverage + Javadoc
 ./gradlew spotlessApply
-./gradlew jacocoAggregateReport
-./gradlew javadoc
+./gradlew test                             # deterministic unit/default suite
+./gradlew integrationTest
+./gradlew jacocoAggregateReport           # generates the combined coverage report for inspection
+./gradlew javadoc                         # aggregate root docs at build/docs/javadoc
 ```
-
-`test` excludes HTTP integration tests that require a local OpenSearch cluster. Run `:opensearch-mcp-http:integrationTest` after starting the local stack, for example with `docker compose up --build`.
 
 Using MCP client:
 ```text
