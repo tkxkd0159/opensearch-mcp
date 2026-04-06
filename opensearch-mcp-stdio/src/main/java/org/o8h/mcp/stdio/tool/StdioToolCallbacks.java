@@ -53,7 +53,7 @@ public class StdioToolCallbacks {
       @ToolParam(
               description =
                   "Name of the target registered OpenSearch cluster. Call listClusters to see available names.",
-              required = false)
+              required = true)
           @Nullable String clusterName,
       @ToolParam(
               description =
@@ -70,7 +70,7 @@ public class StdioToolCallbacks {
       @ToolParam(
               description =
                   "Name of the target registered OpenSearch cluster. Call listClusters to see available names.",
-              required = false)
+              required = true)
           @Nullable String clusterName,
       @ToolParam(
               description =
@@ -92,7 +92,7 @@ public class StdioToolCallbacks {
       @ToolParam(
               description =
                   "Name of the target registered OpenSearch cluster. Call listClusters to see available names.",
-              required = false)
+              required = true)
           @Nullable String clusterName,
       @ToolParam(
               description = "Index name or wildcard pattern to filter shards. Omit for all shards.",
@@ -108,7 +108,7 @@ public class StdioToolCallbacks {
       @ToolParam(
               description =
                   "Name of the target registered OpenSearch cluster. Call listClusters to see available names.",
-              required = false)
+              required = true)
           @Nullable String clusterName,
       @ToolParam(
               description =
@@ -125,7 +125,7 @@ public class StdioToolCallbacks {
       @ToolParam(
               description =
                   "Name of the target registered OpenSearch cluster. Call listClusters to see available names.",
-              required = false)
+              required = true)
           @Nullable String clusterName,
       @ToolParam(
               description = "Comma-separated node IDs or names to filter. Omit for all nodes.",
@@ -146,7 +146,7 @@ public class StdioToolCallbacks {
       @ToolParam(
               description =
                   "Name of the target registered OpenSearch cluster. Call listClusters to see available names.",
-              required = false)
+              required = true)
           @Nullable String clusterName,
       @ToolParam(
               description = "Comma-separated node IDs or names to filter. Omit for all nodes.",
@@ -162,7 +162,7 @@ public class StdioToolCallbacks {
       @ToolParam(
               description =
                   "Name of the target registered OpenSearch cluster. Call listClusters to see available names.",
-              required = false)
+              required = true)
           @Nullable String clusterName,
       @ToolParam(
               description =
@@ -185,7 +185,7 @@ public class StdioToolCallbacks {
       @ToolParam(
               description =
                   "Name of the target registered OpenSearch cluster. Call listClusters to see available names.",
-              required = false)
+              required = true)
           @Nullable String clusterName,
       @ToolParam(description = "API path, e.g. /_search or /my-index/_doc/1. Must start with /.")
           String path,

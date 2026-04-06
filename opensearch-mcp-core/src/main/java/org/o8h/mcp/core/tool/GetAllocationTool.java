@@ -1,8 +1,8 @@
 package org.o8h.mcp.core.tool;
 
 import org.jspecify.annotations.Nullable;
-import org.o8h.mcp.core.opensearch.ClusterTarget;
 import org.o8h.mcp.core.opensearch.ClusterResolver;
+import org.o8h.mcp.core.opensearch.ClusterTarget;
 
 /** Reads node allocation information from OpenSearch. */
 public class GetAllocationTool {

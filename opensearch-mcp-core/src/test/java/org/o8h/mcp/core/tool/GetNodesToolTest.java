@@ -8,8 +8,8 @@ import static org.springframework.test.web.client.response.MockRestResponseCreat
 import java.util.Map;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.o8h.mcp.core.opensearch.ClusterTarget;
 import org.o8h.mcp.core.opensearch.ClusterResolver;
+import org.o8h.mcp.core.opensearch.ClusterTarget;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.client.MockRestServiceServer;

@@ -38,10 +38,8 @@ public class HttpClusterTargetFactory {
       throw new IllegalArgumentException("clusterUrl requires authorization credentials.");
     }
 
-    boolean sslVerificationDisabled =
-        Boolean.parseBoolean(request.getHeader(SSL_DISABLED_HEADER));
-    return new ClusterTarget.AdHoc(
-        clusterUrl.trim(), authorizationHeader, sslVerificationDisabled);
+    boolean sslVerificationDisabled = Boolean.parseBoolean(request.getHeader(SSL_DISABLED_HEADER));
+    return new ClusterTarget.AdHoc(clusterUrl.trim(), authorizationHeader, sslVerificationDisabled);
   }
 
   private boolean hasText(@Nullable String value) {

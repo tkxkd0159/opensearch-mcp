@@ -67,7 +67,8 @@ public class HttpToolCallbacks {
                   "Index name or wildcard pattern to get health for specific indices. Omit for cluster-wide health.",
               required = false)
           @Nullable String index) {
-    return clusterHealthTool.getClusterHealth(clusterTargetFactory.create(clusterName, clusterUrl), index);
+    return clusterHealthTool.getClusterHealth(
+        clusterTargetFactory.create(clusterName, clusterUrl), index);
   }
 
   @Tool(
@@ -209,7 +210,8 @@ public class HttpToolCallbacks {
                   "Node ID or name to filter allocation info for a specific node. Omit for all nodes.",
               required = false)
           @Nullable String nodeId) {
-    return getAllocationTool.getAllocation(clusterTargetFactory.create(clusterName, clusterUrl), nodeId);
+    return getAllocationTool.getAllocation(
+        clusterTargetFactory.create(clusterName, clusterUrl), nodeId);
   }
 
   @Tool(
@@ -253,6 +255,11 @@ public class HttpToolCallbacks {
               required = false)
           @Nullable Map<String, String> headers) {
     return genericOpenSearchApiTool.callApi(
-        clusterTargetFactory.create(clusterName, clusterUrl), path, method, queryParams, body, headers);
+        clusterTargetFactory.create(clusterName, clusterUrl),
+        path,
+        method,
+        queryParams,
+        body,
+        headers);
   }
 }

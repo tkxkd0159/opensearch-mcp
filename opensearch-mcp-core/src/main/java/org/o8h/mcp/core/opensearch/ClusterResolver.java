@@ -32,7 +32,9 @@ public class ClusterResolver {
     return switch (target) {
       case ClusterTarget.Registered(String clusterName) -> resolveRegistered(clusterName);
       case ClusterTarget.AdHoc(
-          String clusterUrl, @Nullable String authorizationHeader, boolean sslDisabled) ->
+              String clusterUrl,
+              @Nullable String authorizationHeader,
+              boolean sslDisabled) ->
           buildAdHocClient(clusterUrl, authorizationHeader, sslDisabled);
     };
   }
@@ -41,7 +43,10 @@ public class ClusterResolver {
     RestClient client = registeredClients.get(clusterName);
     if (client == null) {
       throw new IllegalArgumentException(
-          "Unknown cluster: " + clusterName + ". Available clusters: " + registeredClients.keySet());
+          "Unknown cluster: "
+              + clusterName
+              + ". Available clusters: "
+              + registeredClients.keySet());
     }
     return client;
   }
