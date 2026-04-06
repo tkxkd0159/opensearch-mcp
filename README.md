@@ -10,7 +10,7 @@
 ```sh
 # build -> check -> test
 ./gradlew check                            # tests + Spotless + aggregate coverage + Javadoc
-./gradlew spotlessApply
+./gradlew spotlessApply                    # in-place formatting
 ./gradlew test                             # deterministic unit/default suite
 ./gradlew integrationTest
 ./gradlew jacocoAggregateReport           # generates the combined coverage report for inspection
@@ -26,10 +26,13 @@ Return documents whose timestamp is within the last 120 minutes from the `logs` 
 
 ## Supported MCP Tools
 
-Most tools accept one of these connection inputs:
+Most tools accept exactly one of these connection inputs:
 
 - `clusterName`: a registered cluster name returned by `listClusters`
-- `clusterUrl`: an ad-hoc OpenSearch URL, typically with MCP client headers such as `X-OpenSearch-Username` and `X-OpenSearch-Password`
+- `clusterUrl`: an ad-hoc OpenSearch URL for HTTP transport only. When using `clusterUrl`, send `X-OpenSearch-Authorization: <scheme> <credentials>` on the MCP request.
+
+If both clusterName and clusterUrl are provided, the request is rejected.
+If clusterName is used, X-OpenSearch-Authorization is ignored.
 
 | Tool                 | Purpose                                                                         | Key Parameters                                                                                               |
 | -------------------- | ------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------ |

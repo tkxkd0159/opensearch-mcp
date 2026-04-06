@@ -88,6 +88,6 @@ class GetNodesToolTest {
   @Test
   void getNodes_bothNull_returnsError() {
     String result = tool.getNodes(null, null, null, null);
-    assertThat(result).contains("Either clusterName or clusterUrl must be provided");
+    assertThat(result).contains("Provide exactly one of clusterName or clusterUrl.");
   }
 }

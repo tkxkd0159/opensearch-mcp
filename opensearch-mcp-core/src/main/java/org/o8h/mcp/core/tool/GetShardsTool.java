@@ -33,12 +33,12 @@ public class GetShardsTool {
   public String getShards(
       @ToolParam(
               description =
-                  "Name of the target registered OpenSearch cluster. Call listClusters to see available names. Omit if using clusterUrl.",
+                  "Name of the target registered OpenSearch cluster. Call listClusters to see available names. Provide exactly one of clusterName or clusterUrl.",
               required = false)
           @Nullable String clusterName,
       @ToolParam(
               description =
-                  "Direct URL of an OpenSearch cluster (e.g. https://my-cluster:9200). Use for ad-hoc access without pre-registration. Requires X-OpenSearch-Username and X-OpenSearch-Password headers on the MCP client. Omit if using clusterName.",
+                  "Direct URL of an OpenSearch cluster (e.g. https://my-cluster:9200). Use for ad-hoc access without pre-registration. Ad-hoc clusterUrl access is HTTP transport only. Requires X-OpenSearch-Authorization on the MCP request. Provide exactly one of clusterName or clusterUrl.",
               required = false)
           @Nullable String clusterUrl,
       @ToolParam(

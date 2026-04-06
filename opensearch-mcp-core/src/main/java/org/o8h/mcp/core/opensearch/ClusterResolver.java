@@ -1,12 +1,9 @@
 package org.o8h.mcp.core.opensearch;
 
-import java.nio.charset.StandardCharsets;
 import java.security.KeyManagementException;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
-import java.util.Base64;
 import java.util.Map;
-import java.util.Objects;
 import javax.net.ssl.SSLContext;
 import org.apache.hc.client5.http.impl.classic.HttpClients;
 import org.apache.hc.client5.http.impl.io.PoolingHttpClientConnectionManagerBuilder;
@@ -23,8 +20,7 @@ import org.springframework.web.context.request.ServletRequestAttributes;
 /** Resolves OpenSearch clients from registered configuration or HTTP request headers. */
 public class ClusterResolver {
 
-  private static final String HEADER_USERNAME = "X-OpenSearch-Username";
-  private static final String HEADER_PASSWORD = "X-OpenSearch-Password";
+  private static final String HEADER_AUTHORIZATION = "X-OpenSearch-Authorization";
   private static final String HEADER_SSL_DISABLED = "X-OpenSearch-SSL-Disabled";
 
   private final Map<String, RestClient> registeredClients;
@@ -48,10 +44,14 @@ public class ClusterResolver {
    *     resolved
    */
   public RestClient resolve(@Nullable String clusterName, @Nullable String clusterUrl) {
-    if (clusterUrl != null && !clusterUrl.isBlank()) {
-      return buildAdHocClient(clusterUrl);
+    boolean hasClusterName = clusterName != null && !clusterName.isBlank();
+    boolean hasClusterUrl = clusterUrl != null && !clusterUrl.isBlank();
+
+    if (hasClusterName == hasClusterUrl) {
+      throw new IllegalArgumentException("Provide exactly one of clusterName or clusterUrl.");
     }
-    if (clusterName != null && !clusterName.isBlank()) {
+
+    if (hasClusterName) {
       RestClient client = registeredClients.get(clusterName);
       if (client == null) {
         throw new IllegalArgumentException(
@@ -62,10 +62,14 @@ public class ClusterResolver {
       }
       return client;
     }
-    throw new IllegalArgumentException("Either clusterName or clusterUrl must be provided.");
+    return buildAdHocClient(clusterUrl);
   }
 
-  private RestClient buildAdHocClient(String clusterUrl) {
+  private RestClient buildAdHocClient(@Nullable String clusterUrl) {
+    if (clusterUrl == null) {
+      throw new IllegalArgumentException("Provide exactly one of clusterName or clusterUrl.");
+    }
+
     var requestAttrs = RequestContextHolder.getRequestAttributes();
     if (!(requestAttrs instanceof ServletRequestAttributes servletRequestAttributes)) {
       throw new IllegalArgumentException(
@@ -73,25 +77,26 @@ public class ClusterResolver {
     }
     var request = servletRequestAttributes.getRequest();
 
-    @Nullable String username = request.getHeader(HEADER_USERNAME);
-    @Nullable String password = request.getHeader(HEADER_PASSWORD);
+    @Nullable String authorization = request.getHeader(HEADER_AUTHORIZATION);
 
-    if (username == null || password == null) {
+    if (authorization == null || authorization.isBlank()) {
+      throw new IllegalArgumentException("clusterUrl requires X-OpenSearch-Authorization.");
+    }
+
+    String[] authorizationParts = authorization.trim().split("\\s+", 2);
+    if (authorizationParts.length != 2
+        || authorizationParts[0].isBlank()
+        || authorizationParts[1].isBlank()) {
       throw new IllegalArgumentException(
-          "Ad-hoc mode requires X-OpenSearch-Username and X-OpenSearch-Password headers.");
+          "X-OpenSearch-Authorization must use the format '<scheme> <credentials>'.");
     }
 
     boolean sslDisabled = "true".equalsIgnoreCase(request.getHeader(HEADER_SSL_DISABLED));
-    String credentials =
-        Base64.getEncoder()
-            .encodeToString(
-                (Objects.requireNonNull(username) + ":" + Objects.requireNonNull(password))
-                    .getBytes(StandardCharsets.UTF_8));
 
     RestClient.Builder builder =
         RestClient.builder()
             .baseUrl(clusterUrl)
-            .defaultHeader(HttpHeaders.AUTHORIZATION, "Basic " + credentials);
+            .defaultHeader(HttpHeaders.AUTHORIZATION, authorization);
 
     if (sslDisabled) {
       builder.requestFactory(buildSslDisabledRequestFactory());

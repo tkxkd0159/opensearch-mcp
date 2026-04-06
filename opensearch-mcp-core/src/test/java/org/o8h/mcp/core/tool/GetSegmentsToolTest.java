@@ -62,6 +62,6 @@ class GetSegmentsToolTest {
   @Test
   void getSegments_bothNull_returnsError() {
     String result = tool.getSegments(null, null, null);
-    assertThat(result).contains("Either clusterName or clusterUrl must be provided");
+    assertThat(result).contains("Provide exactly one of clusterName or clusterUrl.");
   }
 }

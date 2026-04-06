@@ -67,7 +67,13 @@ class ClusterHealthToolTest {
   @Test
   void getClusterHealth_bothNull_returnsError() {
     String result = tool.getClusterHealth(null, null, null);
-    assertThat(result).contains("Either clusterName or clusterUrl must be provided");
+    assertThat(result).contains("Provide exactly one of clusterName or clusterUrl.");
+  }
+
+  @Test
+  void getClusterHealth_bothInputsProvided_returnsError() {
+    String result = tool.getClusterHealth("local", "http://other-cluster:9200", null);
+    assertThat(result).contains("Provide exactly one of clusterName or clusterUrl.");
   }
 
   @Test

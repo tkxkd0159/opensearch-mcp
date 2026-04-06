@@ -13,8 +13,7 @@
       "type": "http",
       "url": "http://localhost:8080/mcp",
       "headers": {
-        "X-OpenSearch-Username": "admin",
-        "X-OpenSearch-Password": "LocalAdmin123!",
+        "X-OpenSearch-Authorization": "Basic YWRtaW46TG9jYWxBZG1pbjEyMyE=",
         "X-OpenSearch-SSL-Disabled": "true"
       }
     },
