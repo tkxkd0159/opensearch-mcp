@@ -41,3 +41,5 @@ out/
 config/test.yml
 
 .DS_Store
+
+docs/superpowers/
