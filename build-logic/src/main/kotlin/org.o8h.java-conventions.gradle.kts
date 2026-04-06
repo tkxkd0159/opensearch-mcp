@@ -67,12 +67,6 @@ tasks.named("check") {
     dependsOn(tasks.named("javadoc"))
 }
 
-configurations {
-    compileOnly {
-        extendsFrom(configurations.annotationProcessor.get())
-    }
-}
-
 dependencies {
     compileOnly(libs.jspecify)
     testCompileOnly(libs.jspecify)
