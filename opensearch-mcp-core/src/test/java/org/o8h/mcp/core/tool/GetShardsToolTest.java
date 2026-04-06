@@ -62,6 +62,6 @@ class GetShardsToolTest {
   @Test
   void getShards_bothNull_returnsError() {
     String result = tool.getShards(null, null, null);
-    assertThat(result).contains("Either clusterName or clusterUrl must be provided");
+    assertThat(result).contains("Provide exactly one of clusterName or clusterUrl.");
   }
 }

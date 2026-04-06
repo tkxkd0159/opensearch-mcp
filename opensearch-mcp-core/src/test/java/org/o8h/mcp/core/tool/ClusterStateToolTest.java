@@ -75,6 +75,6 @@ class ClusterStateToolTest {
   @Test
   void getClusterState_bothNull_returnsError() {
     String result = tool.getClusterState(null, null, null, null);
-    assertThat(result).contains("Either clusterName or clusterUrl must be provided");
+    assertThat(result).contains("Provide exactly one of clusterName or clusterUrl.");
   }
 }
