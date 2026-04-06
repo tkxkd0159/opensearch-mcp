@@ -4,9 +4,11 @@ errorprone-plugin = "5.1.0"
 jacoco = "0.8.14"
 jspecify = "1.0.0"
 nullaway = "0.12.12"
+opensearch-testcontainers = "4.1.0"
 spotless = "7.2.1"
 spring-boot = "4.0.5"
 spring-ai = "2.0.0-M4"
+testcontainers = "2.0.4"
 
 [libraries]
 errorprone-core = { module = "com.google.errorprone:error_prone_core", version.ref = "errorprone" }
@@ -25,6 +27,8 @@ spring-boot-starter-webmvc-test = { module = "org.springframework.boot:spring-bo
 spring-boot-configuration-processor = { module = "org.springframework.boot:spring-boot-configuration-processor" }
 httpclient5 = { module = "org.apache.httpcomponents.client5:httpclient5" }
 junit-platform-launcher = { module = "org.junit.platform:junit-platform-launcher" }
+opensearch-testcontainers = { module = "org.opensearch:opensearch-testcontainers", version.ref = "opensearch-testcontainers" }
+testcontainers = { module = "org.testcontainers:testcontainers", version.ref = "testcontainers" }
 
 [plugins]
 errorprone = { id = "net.ltgt.errorprone", version.ref = "errorprone-plugin" }
