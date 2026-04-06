@@ -1,7 +1,0 @@
-opensearch:
-  clusters:
-    local:
-      url: https://localhost:9200
-      username: admin
-      password: LocalAdmin123!
-      ssl-verification-disabled: true

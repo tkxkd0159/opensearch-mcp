@@ -6,10 +6,10 @@ import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 import java.util.Map;
 import java.util.stream.Stream;
+import org.jspecify.annotations.Nullable;
 import org.o8h.mcp.core.opensearch.ClusterResolver;
 import org.o8h.mcp.core.opensearch.ClusterTarget;
 import org.opensearch.testcontainers.OpenSearchContainer;
-import org.jspecify.annotations.Nullable;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.web.client.RestClient;
@@ -141,7 +141,9 @@ public final class OpenSearchClusterFixture {
 
     client
         .post()
-        .uri(uriBuilder -> uriBuilder.path("/books/_doc/1").queryParam("refresh", "wait_for").build())
+        .uri(
+            uriBuilder ->
+                uriBuilder.path("/books/_doc/1").queryParam("refresh", "wait_for").build())
         .contentType(MediaType.APPLICATION_JSON)
         .body(
             """
@@ -192,9 +194,7 @@ public final class OpenSearchClusterFixture {
   }
 
   private record FixtureState(
-      Network network,
-      MultiNodeOpenSearchContainer nodeOne,
-      MultiNodeOpenSearchContainer nodeTwo) {
+      Network network, MultiNodeOpenSearchContainer nodeOne, MultiNodeOpenSearchContainer nodeTwo) {
 
     private void close() {
       nodeTwo.close();

@@ -72,12 +72,11 @@ class ToolsIntegrationTest {
 
   @Test
   void allocationAndShards_placePrimaryAndReplicaOnDifferentNodes() {
-    java.util.List<Map<String, Object>> shardRows = readRows(getShardsTool.getShards(LOCAL, "books"));
+    java.util.List<Map<String, Object>> shardRows =
+        readRows(getShardsTool.getShards(LOCAL, "books"));
 
     Set<String> prirep =
-        shardRows.stream()
-            .map(row -> value(row, "prirep"))
-            .collect(Collectors.toSet());
+        shardRows.stream().map(row -> value(row, "prirep")).collect(Collectors.toSet());
     Set<String> shardNodes =
         shardRows.stream()
             .map(row -> value(row, "node"))
@@ -87,7 +86,8 @@ class ToolsIntegrationTest {
     assertThat(prirep).contains("p", "r");
     assertThat(shardNodes).hasSize(2);
 
-    java.util.List<Map<String, Object>> allocationRows = readRows(getAllocationTool.getAllocation(LOCAL, null));
+    java.util.List<Map<String, Object>> allocationRows =
+        readRows(getAllocationTool.getAllocation(LOCAL, null));
     Set<String> allocationNodes =
         allocationRows.stream()
             .map(row -> value(row, "node"))
@@ -99,7 +99,8 @@ class ToolsIntegrationTest {
 
   @Test
   void segments_returnsEntriesForBooks() {
-    java.util.List<Map<String, Object>> response = readRows(getSegmentsTool.getSegments(LOCAL, "books"));
+    java.util.List<Map<String, Object>> response =
+        readRows(getSegmentsTool.getSegments(LOCAL, "books"));
 
     assertThat(response).isNotEmpty();
     assertThat(response.stream().map(row -> value(row, "index")))

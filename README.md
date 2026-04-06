@@ -12,10 +12,12 @@
 ./gradlew check                            # tests + Spotless + aggregate coverage + Javadoc
 ./gradlew spotlessApply                    # in-place formatting
 ./gradlew test                             # deterministic unit/default suite
-./gradlew integrationTest
+./gradlew :opensearch-mcp-core:integrationTest
 ./gradlew jacocoAggregateReport           # generates the combined coverage report for inspection
 ./gradlew javadoc                         # aggregate root docs at build/docs/javadoc
 ```
+
+`compose.yml` remains for manual smoke and local server workflows. Automated multi-node integration coverage now lives in `opensearch-mcp-core` and runs through Testcontainers.
 
 Using MCP client:
 ```text
