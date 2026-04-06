@@ -17,6 +17,8 @@
 ./gradlew javadoc                         # aggregate root docs at build/docs/javadoc
 ```
 
+`compose.yml` remains for manual smoke and local server workflows. Automated multi-node integration coverage now lives in `opensearch-mcp-core` and runs through Testcontainers.
+
 Using MCP client:
 ```text
 Add a document to 'logs' index. The document is {"message": "MCP test", "@timestamp": "$(date -u +%Y-%m-%dT%H:%M:%SZ)"}

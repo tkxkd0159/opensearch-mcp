@@ -14,12 +14,16 @@ import java.util.Map;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.o8h.mcp.core.opensearch.ClusterResolver;
+import org.o8h.mcp.core.opensearch.ClusterTarget;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.client.MockRestServiceServer;
 import org.springframework.web.client.RestClient;
 
 class GenericOpenSearchApiToolTest {
+
+  private static final ClusterTarget.Registered LOCAL = new ClusterTarget.Registered("local");
+  private static final ClusterTarget.Registered UNKNOWN = new ClusterTarget.Registered("unknown");
 
   private MockRestServiceServer mockServer;
   private GenericOpenSearchApiTool toolWritesEnabled;
@@ -45,8 +49,7 @@ class GenericOpenSearchApiToolTest {
 
     String result =
         toolWritesEnabled.callApi(
-            "local",
-            null,
+            LOCAL,
             "/_cat/shards",
             "GET",
             Map.of("v", "true"),
@@ -67,7 +70,7 @@ class GenericOpenSearchApiToolTest {
 
     String result =
         toolWritesEnabled.callApi(
-            "local", null, "/_search", "POST", null, "{\"query\":{\"match_all\":{}}}", null);
+            LOCAL, "/_search", "POST", null, "{\"query\":{\"match_all\":{}}}", null);
 
     mockServer.verify();
     assertThat(result).contains("hits");
@@ -76,8 +79,7 @@ class GenericOpenSearchApiToolTest {
   @Test
   void callApi_post_whenWritesDisabled_returnsError() {
     String result =
-        toolWritesDisabled.callApi(
-            "local", null, "/_doc", "POST", null, "{\"field\":\"value\"}", null);
+        toolWritesDisabled.callApi(LOCAL, "/_doc", "POST", null, "{\"field\":\"value\"}", null);
 
     assertThat(result).contains("Write operations are disabled");
     assertThat(result).contains("opensearch.write-enabled=true");
@@ -86,7 +88,7 @@ class GenericOpenSearchApiToolTest {
   @Test
   void callApi_delete_whenWritesDisabled_returnsError() {
     String result =
-        toolWritesDisabled.callApi("local", null, "/my-index/_doc/1", "DELETE", null, null, null);
+        toolWritesDisabled.callApi(LOCAL, "/my-index/_doc/1", "DELETE", null, null, null);
 
     assertThat(result).contains("Write operations are disabled");
   }
@@ -94,15 +96,14 @@ class GenericOpenSearchApiToolTest {
   @Test
   void callApi_put_whenWritesDisabled_returnsError() {
     String result =
-        toolWritesDisabled.callApi(
-            "local", null, "/my-index", "PUT", null, "{\"settings\":{}}", null);
+        toolWritesDisabled.callApi(LOCAL, "/my-index", "PUT", null, "{\"settings\":{}}", null);
 
     assertThat(result).contains("Write operations are disabled");
   }
 
   @Test
   void callApi_unknownCluster_returnsError() {
-    String result = toolWritesEnabled.callApi("unknown", null, "/_search", "GET", null, null, null);
+    String result = toolWritesEnabled.callApi(UNKNOWN, "/_search", "GET", null, null, null);
 
     assertThat(result).contains("Unknown cluster: unknown");
   }
@@ -119,23 +120,21 @@ class GenericOpenSearchApiToolTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .body(errorBody));
 
-    String result =
-        toolWritesEnabled.callApi("local", null, "/logs/_search", "GET", null, null, null);
+    String result = toolWritesEnabled.callApi(LOCAL, "/logs/_search", "GET", null, null, null);
 
     assertThat(result).contains("index_not_found_exception");
   }
 
   @Test
-  void callApi_bothNull_returnsError() {
-    String result = toolWritesEnabled.callApi(null, null, "/_search", "GET", null, null, null);
+  void callApi_nullTarget_returnsError() {
+    String result = toolWritesEnabled.callApi(null, "/_search", "GET", null, null, null);
 
-    assertThat(result).contains("Provide exactly one of clusterName or clusterUrl.");
+    assertThat(result).contains("Cluster target is required.");
   }
 
   @Test
   void callApi_invalidMethod_returnsError() {
-    String result =
-        toolWritesEnabled.callApi("local", null, "/_search", "INVALID", null, null, null);
+    String result = toolWritesEnabled.callApi(LOCAL, "/_search", "INVALID", null, null, null);
 
     assertThat(result).contains("Invalid method: INVALID");
   }
@@ -147,8 +146,7 @@ class GenericOpenSearchApiToolTest {
         .andExpect(method(org.springframework.http.HttpMethod.GET))
         .andRespond(withException(new IOException("Connection refused")));
 
-    String result =
-        toolWritesEnabled.callApi("local", null, "/_cluster/health", "GET", null, null, null);
+    String result = toolWritesEnabled.callApi(LOCAL, "/_cluster/health", "GET", null, null, null);
 
     mockServer.verify();
     assertThat(result).startsWith("Network error:");

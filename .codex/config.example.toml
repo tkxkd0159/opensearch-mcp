@@ -1,6 +1,9 @@
 [mcp_servers.o8h_mcp_server_stdio]
 command = "java"
-args = ["-jar", "./build/libs/opensearch-mcp-stdio.jar"]
+args = [
+    "-jar", "./build/libs/opensearch-mcp-stdio-latest-SNAPSHOT.jar",
+    "--spring.config.additional-location=file:./opensearch-mcp-stdio/src/main/resources/application-local.yml",
+]
 
 [mcp_servers.o8h_mcp_server_http]
 url = "http://localhost:8080/mcp"

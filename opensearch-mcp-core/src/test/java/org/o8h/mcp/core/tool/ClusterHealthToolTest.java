@@ -12,6 +12,7 @@ import java.util.Map;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.o8h.mcp.core.opensearch.ClusterResolver;
+import org.o8h.mcp.core.opensearch.ClusterTarget;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -19,6 +20,9 @@ import org.springframework.test.web.client.MockRestServiceServer;
 import org.springframework.web.client.RestClient;
 
 class ClusterHealthToolTest {
+
+  private static final ClusterTarget.Registered LOCAL = new ClusterTarget.Registered("local");
+  private static final ClusterTarget.Registered UNKNOWN = new ClusterTarget.Registered("unknown");
 
   private MockRestServiceServer mockServer;
   private ClusterHealthTool tool;
@@ -38,7 +42,7 @@ class ClusterHealthToolTest {
         .andExpect(method(HttpMethod.GET))
         .andRespond(withSuccess("{\"status\":\"green\"}", MediaType.APPLICATION_JSON));
 
-    String result = tool.getClusterHealth("local", null, null);
+    String result = tool.getClusterHealth(LOCAL, null);
 
     mockServer.verify();
     assertThat(result).contains("green");
@@ -51,7 +55,7 @@ class ClusterHealthToolTest {
         .andExpect(method(HttpMethod.GET))
         .andRespond(withSuccess("{\"status\":\"yellow\"}", MediaType.APPLICATION_JSON));
 
-    String result = tool.getClusterHealth("local", null, "my-index");
+    String result = tool.getClusterHealth(LOCAL, "my-index");
 
     mockServer.verify();
     assertThat(result).contains("yellow");
@@ -59,21 +63,15 @@ class ClusterHealthToolTest {
 
   @Test
   void getClusterHealth_unknownCluster_returnsError() {
-    String result = tool.getClusterHealth("unknown", null, null);
+    String result = tool.getClusterHealth(UNKNOWN, null);
     assertThat(result).contains("Unknown cluster: unknown");
     assertThat(result).contains("local");
   }
 
   @Test
-  void getClusterHealth_bothNull_returnsError() {
-    String result = tool.getClusterHealth(null, null, null);
-    assertThat(result).contains("Provide exactly one of clusterName or clusterUrl.");
-  }
-
-  @Test
-  void getClusterHealth_bothInputsProvided_returnsError() {
-    String result = tool.getClusterHealth("local", "http://other-cluster:9200", null);
-    assertThat(result).contains("Provide exactly one of clusterName or clusterUrl.");
+  void getClusterHealth_nullTarget_returnsError() {
+    String result = tool.getClusterHealth(null, null);
+    assertThat(result).contains("Cluster target is required.");
   }
 
   @Test
@@ -87,7 +85,7 @@ class ClusterHealthToolTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .body(errorBody));
 
-    String result = tool.getClusterHealth("local", null, "missing-index");
+    String result = tool.getClusterHealth(LOCAL, "missing-index");
 
     mockServer.verify();
     assertThat(result).contains("index_not_found_exception");
@@ -100,7 +98,7 @@ class ClusterHealthToolTest {
         .andExpect(method(HttpMethod.GET))
         .andRespond(withException(new IOException("Connection refused")));
 
-    String result = tool.getClusterHealth("local", null, null);
+    String result = tool.getClusterHealth(LOCAL, null);
 
     mockServer.verify();
     assertThat(result).startsWith("Network error:");

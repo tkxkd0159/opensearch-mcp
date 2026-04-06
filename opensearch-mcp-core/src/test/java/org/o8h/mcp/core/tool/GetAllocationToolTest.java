@@ -9,12 +9,16 @@ import java.util.Map;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.o8h.mcp.core.opensearch.ClusterResolver;
+import org.o8h.mcp.core.opensearch.ClusterTarget;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.client.MockRestServiceServer;
 import org.springframework.web.client.RestClient;
 
 class GetAllocationToolTest {
+
+  private static final ClusterTarget.Registered LOCAL = new ClusterTarget.Registered("local");
+  private static final ClusterTarget.Registered UNKNOWN = new ClusterTarget.Registered("unknown");
 
   private MockRestServiceServer mockServer;
   private GetAllocationTool tool;
@@ -34,7 +38,7 @@ class GetAllocationToolTest {
         .andExpect(method(HttpMethod.GET))
         .andRespond(withSuccess("[]", MediaType.APPLICATION_JSON));
 
-    String result = tool.getAllocation("local", null, null);
+    String result = tool.getAllocation(LOCAL, null);
 
     mockServer.verify();
     assertThat(result).isNotNull();
@@ -47,7 +51,7 @@ class GetAllocationToolTest {
         .andExpect(method(HttpMethod.GET))
         .andRespond(withSuccess("[]", MediaType.APPLICATION_JSON));
 
-    String result = tool.getAllocation("local", null, "node1");
+    String result = tool.getAllocation(LOCAL, "node1");
 
     mockServer.verify();
     assertThat(result).isNotNull();
@@ -55,13 +59,13 @@ class GetAllocationToolTest {
 
   @Test
   void getAllocation_unknownCluster_returnsError() {
-    String result = tool.getAllocation("unknown", null, null);
+    String result = tool.getAllocation(UNKNOWN, null);
     assertThat(result).contains("Unknown cluster: unknown");
   }
 
   @Test
-  void getAllocation_bothNull_returnsError() {
-    String result = tool.getAllocation(null, null, null);
-    assertThat(result).contains("Provide exactly one of clusterName or clusterUrl.");
+  void getAllocation_nullTarget_returnsError() {
+    String result = tool.getAllocation(null, null);
+    assertThat(result).contains("Cluster target is required.");
   }
 }

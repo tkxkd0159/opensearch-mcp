@@ -1,12 +1,15 @@
 package org.o8h.mcp.stdio;
 
 import org.o8h.mcp.core.config.EnableOpensearchMcp;
+import org.o8h.mcp.stdio.config.StdioToolConfig;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.context.annotation.Import;
 
 /** Entry point for the stdio MCP server. */
 @SpringBootApplication
 @EnableOpensearchMcp
+@Import(StdioToolConfig.class)
 public class OpensearchMcpStdioApplication {
 
   /** Creates the application bootstrap type. */

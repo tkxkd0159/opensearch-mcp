@@ -30,20 +30,6 @@ tasks.named<Test>("test") {
     systemProperty("spring.config.additional-location", "optional:file:${rootProject.projectDir}/_test.yml")
 }
 
-val testSourceSet = the<SourceSetContainer>()["test"]
-
-tasks.register<Test>("integrationTest") {
-    description = "Runs integration tests that require local external services."
-    group = "verification"
-    testClassesDirs = testSourceSet.output.classesDirs
-    classpath = testSourceSet.runtimeClasspath
-    shouldRunAfter(tasks.named("test"))
-    useJUnitPlatform {
-        includeTags("integration")
-    }
-    systemProperty("spring.config.additional-location", "optional:file:${rootProject.projectDir}/_test.yml")
-}
-
 val bootJarTask =
     tasks.named<BootJar>("bootJar") {
         destinationDirectory = rootProject.layout.projectDirectory.dir("build/libs")
