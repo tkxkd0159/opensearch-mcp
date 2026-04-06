@@ -29,7 +29,7 @@ If `clusterName` is used, `X-OpenSearch-Authorization` is ignored.
 | `getNodesHotThreads` | Returns hot thread output for all nodes or selected nodes.                      | `clusterName` or `clusterUrl`, optional `nodeId`                                                             |
 | `getAllocation`      | Returns shard allocation and disk usage using the `_cat/allocation` API.        | `clusterName` or `clusterUrl`, optional `nodeId`                                                             |
 | `getIndexInfo`       | Returns index metadata including mappings, settings, and aliases.               | `clusterName` or `clusterUrl`, required `index`                                                              |
-| `getIndexStats`      | Returns index statistics using the native `_stats` path shapes.                 | `clusterName` or `clusterUrl`, optional `indexIds`, optional `metrics`                                       |
+| `getIndexStats`      | Returns index statistics using the native `_stats` path shapes.                 | `clusterName` or `clusterUrl`, optional `index`, optional `metrics`                                          |
 | `getLongRunningTasks`| Returns running CAT tasks sorted by running time descending, with optional threshold filtering. | `clusterName` or `clusterUrl`, optional `minRunningSeconds`                                    |
 | `callApi`            | Calls any OpenSearch API path not covered by dedicated tools.                   | `clusterName` or `clusterUrl`, `path`, `method`, optional `queryParams`, optional `body`, optional `headers` |
 

@@ -22,35 +22,35 @@ public class GetIndexStatsTool {
    * Fetches index stats using the native OpenSearch path shapes.
    *
    * @param target transport-neutral cluster target
-   * @param indexIds optional index names, aliases, or wildcards
+   * @param index optional index names, aliases, or wildcards
    * @param metrics optional stats metric selector
    * @return the raw JSON response or an error message
    */
   public String getIndexStats(
-      @Nullable ClusterTarget target, @Nullable String indexIds, @Nullable String metrics) {
+      @Nullable ClusterTarget target, @Nullable String index, @Nullable String metrics) {
     return ToolCallHelper.execute(
         () ->
             clusterResolver
                 .resolve(target)
                 .get()
-                .uri(buildPath(indexIds, metrics))
+                .uri(buildPath(index, metrics))
                 .retrieve()
                 .body(String.class));
   }
 
-  private String buildPath(@Nullable String indexIds, @Nullable String metrics) {
-    boolean hasIndexIds = indexIds != null && !indexIds.isBlank();
+  private String buildPath(@Nullable String index, @Nullable String metrics) {
+    boolean hasIndex = index != null && !index.isBlank();
     boolean hasMetrics = metrics != null && !metrics.isBlank();
 
-    if (!hasIndexIds && !hasMetrics) {
+    if (!hasIndex && !hasMetrics) {
       return "/_stats";
     }
-    if (!hasIndexIds) {
+    if (!hasIndex) {
       return "/_stats/" + metrics;
     }
     if (!hasMetrics) {
-      return "/" + indexIds + "/_stats";
+      return "/" + index + "/_stats";
     }
-    return "/" + indexIds + "/_stats/" + metrics;
+    return "/" + index + "/_stats/" + metrics;
   }
 }

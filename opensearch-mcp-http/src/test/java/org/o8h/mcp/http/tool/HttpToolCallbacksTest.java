@@ -96,6 +96,11 @@ class HttpToolCallbacksTest {
     assertToolSignature("getIndexInfo", String.class, String.class, String.class);
     assertToolSignature("getIndexStats", String.class, String.class, String.class, String.class);
     assertToolSignature("getLongRunningTasks", String.class, String.class, Integer.class);
+
+    Method getIndexStats =
+        HttpToolCallbacks.class.getMethod(
+            "getIndexStats", String.class, String.class, String.class, String.class);
+    assertThat(getIndexStats.getParameters()[2].getName()).isEqualTo("index");
   }
 
   private void assertToolSignature(String methodName, Class<?>... parameterTypes) throws Exception {

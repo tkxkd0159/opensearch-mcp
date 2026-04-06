@@ -247,14 +247,14 @@ public class HttpToolCallbacks {
               description =
                   "Optional comma-separated index names, aliases, or wildcard patterns. Omit for cluster-wide stats.",
               required = false)
-          @Nullable String indexIds,
+          @Nullable String index,
       @ToolParam(
               description =
                   "Optional comma-separated stats metric names, such as docs,store or indexing,search.",
               required = false)
           @Nullable String metrics) {
     return getIndexStatsTool.getIndexStats(
-        clusterTargetFactory.create(clusterName, clusterUrl), indexIds, metrics);
+        clusterTargetFactory.create(clusterName, clusterUrl), index, metrics);
   }
 
   @Tool(

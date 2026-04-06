@@ -30,4 +30,13 @@ class StdioToolCallbacksTest {
       assertThat(parameters[0].getAnnotation(ToolParam.class).required()).isTrue();
     }
   }
+
+  @Test
+  void getIndexStats_usesIndexParameterName() throws Exception {
+    Method method =
+        StdioToolCallbacks.class.getMethod(
+            "getIndexStats", String.class, String.class, String.class);
+
+    assertThat(method.getParameters()[1].getName()).isEqualTo("index");
+  }
 }
