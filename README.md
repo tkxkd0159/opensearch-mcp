@@ -1,30 +1,11 @@
+# OpenSearch MCP
+
+OpenSearch MCP server for cluster inspection, diagnostics, and direct API access over MCP.
+
 ## Quick Start
 
-```sh
-./gradlew :opensearch-mcp-http:runLocalJar # curl http://localhost:8081/actuator
-./gradlew :opensearch-mcp-stdio:runLocalJar
-```
-
-## Development Checks
-
-```sh
-# build -> check -> test
-./gradlew check                            # tests + Spotless + aggregate coverage + Javadoc
-./gradlew spotlessApply                    # in-place formatting
-./gradlew test                             # deterministic unit/default suite
-./gradlew integrationTest
-./gradlew jacocoAggregateReport           # generates the combined coverage report for inspection
-./gradlew javadoc                         # aggregate root docs at build/docs/javadoc
-```
-
-`compose.yml` remains for manual smoke and local server workflows. Automated multi-node integration coverage now lives in `opensearch-mcp-core` and runs through Testcontainers.
-
-Using MCP client:
-```text
-Add a document to 'logs' index. The document is {"message": "MCP test", "@timestamp": "$(date -u +%Y-%m-%dT%H:%M:%SZ)"}
-
-Return documents whose timestamp is within the last 120 minutes from the `logs` index on the `local` OpenSearch cluster
-```
+- [USER_GUIDE.md](USER_GUIDE.md) for setup, client configuration, and example workflows
+- [DEVELOPMENT.md](DEVELOPMENT.md) for build, test, and contributor workflows
 
 ## Supported MCP Tools
 
@@ -33,8 +14,8 @@ Most tools accept exactly one of these connection inputs:
 - `clusterName`: a registered cluster name returned by `listClusters`
 - `clusterUrl`: an ad-hoc OpenSearch URL for HTTP transport only. When using `clusterUrl`, send `X-OpenSearch-Authorization: <scheme> <credentials>` on the MCP request.
 
-If both clusterName and clusterUrl are provided, the request is rejected.
-If clusterName is used, X-OpenSearch-Authorization is ignored.
+If both `clusterName` and `clusterUrl` are provided, the request is rejected.
+If `clusterName` is used, `X-OpenSearch-Authorization` is ignored.
 
 | Tool                 | Purpose                                                                         | Key Parameters                                                                                               |
 | -------------------- | ------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------ |
