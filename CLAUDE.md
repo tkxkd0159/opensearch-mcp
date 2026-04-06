@@ -40,7 +40,7 @@ Build conventions (Java version, test settings) live in `build-logic/src/main/ko
 `ClusterResolver` supports two modes:
 
 1. **Registered clusters** — pre-configured in `application.yml` under `opensearch.clusters.<name>`. Tools receive a cluster name string, and `ClusterResolver` maps it to a `RestClient`.
-2. **Ad-hoc clusters** — tools pass a URL directly; ad-hoc target credentials come from the HTTP header `X-OpenSearch-Authorization`, and optional TLS relaxation still uses `X-OpenSearch-SSL-Disabled`. A fresh `RestClient` is built per-request. Tool calls must provide exactly one of `clusterName` or `clusterUrl`.
+2. **Ad-hoc clusters** — HTTP transport only; tools pass a URL directly; ad-hoc target credentials come from the HTTP header `X-OpenSearch-Authorization`, and optional TLS relaxation still uses `X-OpenSearch-SSL-Disabled`. A fresh `RestClient` is built per-request. Tool calls must provide exactly one of `clusterName` or `clusterUrl`.
 
 Both modes converge on `ClusterResolver.resolve(...)` returning a `RestClient`.
 
