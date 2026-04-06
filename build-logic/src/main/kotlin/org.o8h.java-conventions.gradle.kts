@@ -76,8 +76,6 @@ configurations {
 dependencies {
     compileOnly(libs.jspecify)
     testCompileOnly(libs.jspecify)
-    compileOnly(libs.lombok)
-    annotationProcessor(libs.lombok)
     errorprone(libs.errorprone.core)
     errorprone(libs.nullaway)
 }
