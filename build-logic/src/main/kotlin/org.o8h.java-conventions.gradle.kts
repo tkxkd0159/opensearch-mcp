@@ -1,12 +1,16 @@
 import net.ltgt.gradle.errorprone.CheckSeverity
 import net.ltgt.gradle.errorprone.errorprone
 import org.gradle.accessors.dm.LibrariesForLibs
+import org.gradle.api.file.FileCollection
+import org.gradle.api.tasks.Classpath
 import org.gradle.api.tasks.compile.JavaCompile
 import org.gradle.api.tasks.javadoc.Javadoc
 import org.gradle.api.tasks.testing.Test
 import org.gradle.external.javadoc.StandardJavadocDocletOptions
+import org.gradle.process.CommandLineArgumentProvider
 import org.gradle.testing.jacoco.plugins.JacocoPluginExtension
 import org.gradle.testing.jacoco.tasks.JacocoReport
+import javax.inject.Inject
 
 plugins {
     java
@@ -18,6 +22,19 @@ group = "org.o8h"
 version = "latest-SNAPSHOT"
 
 val libs = the<LibrariesForLibs>()
+
+abstract class MockitoAgentArgumentProvider
+    @Inject
+    constructor(
+        @get:Classpath val testClasspath: FileCollection,
+    ) : CommandLineArgumentProvider {
+        override fun asArguments(): Iterable<String> {
+            val mockitoCoreJar =
+                testClasspath.files.firstOrNull { it.name.startsWith("mockito-core-") && it.extension == "jar" }
+                    ?: return emptyList()
+            return listOf("-javaagent:${mockitoCoreJar.absolutePath}")
+        }
+    }
 
 java {
     toolchain {
@@ -43,6 +60,7 @@ tasks.named<JavaCompile>("compileTestJava") {
 
 tasks.withType<Test>().configureEach {
     useJUnitPlatform()
+    jvmArgumentProviders.add(objects.newInstance<MockitoAgentArgumentProvider>(classpath))
 }
 
 tasks.named<JacocoReport>("jacocoTestReport") {
