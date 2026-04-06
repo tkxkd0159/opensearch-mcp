@@ -5,111 +5,50 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
 
 import java.util.Map;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.web.client.RestClient;
-import org.springframework.web.context.request.RequestContextHolder;
-import org.springframework.web.context.request.ServletRequestAttributes;
 
 class ClusterResolverTest {
 
   private final RestClient registeredClient = mock(RestClient.class);
   private final ClusterResolver resolver = new ClusterResolver(Map.of("prod", registeredClient));
 
-  @AfterEach
-  void clearRequestContext() {
-    RequestContextHolder.resetRequestAttributes();
+  @Test
+  void resolve_registeredTarget_returnsRegisteredClient() {
+    RestClient result = resolver.resolve(new ClusterTarget.Registered("prod"));
+    assertThat(result).isSameAs(registeredClient);
   }
 
   @Test
-  void resolve_withClusterName_returnsRegisteredClient() {
-    assertThat(resolver.resolve("prod", null)).isSameAs(registeredClient);
-  }
-
-  @Test
-  void resolve_withClusterName_ignoresOpenSearchAuthorizationHeader() {
-    MockHttpServletRequest request = new MockHttpServletRequest();
-    request.addHeader("X-OpenSearch-Authorization", "Basic invalid");
-    RequestContextHolder.setRequestAttributes(new ServletRequestAttributes(request));
-
-    assertThat(resolver.resolve("prod", null)).isSameAs(registeredClient);
-  }
-
-  @Test
-  void resolve_withUnknownClusterName_throwsWithMessage() {
-    assertThatThrownBy(() -> resolver.resolve("unknown", null))
+  void resolve_unknownRegisteredTarget_throwsWithMessage() {
+    assertThatThrownBy(() -> resolver.resolve(new ClusterTarget.Registered("unknown")))
         .isInstanceOf(IllegalArgumentException.class)
         .hasMessageContaining("Unknown cluster: unknown")
         .hasMessageContaining("prod");
   }
 
   @Test
-  void resolve_bothNull_throwsWithExactOneMessage() {
-    assertThatThrownBy(() -> resolver.resolve(null, null))
+  void resolve_adHocTarget_missingAuthorization_throws() {
+    assertThatThrownBy(
+            () -> resolver.resolve(new ClusterTarget.AdHoc("http://cluster:9200", "", false)))
         .isInstanceOf(IllegalArgumentException.class)
-        .hasMessage("Provide exactly one of clusterName or clusterUrl.");
+        .hasMessage("clusterUrl requires authorization credentials.");
   }
 
   @Test
-  void resolve_withBothInputs_throwsWithExactOneMessage() {
-    MockHttpServletRequest request = new MockHttpServletRequest();
-    request.addHeader("X-OpenSearch-Authorization", "Basic YWRtaW46c2VjcmV0");
-    RequestContextHolder.setRequestAttributes(new ServletRequestAttributes(request));
-
-    assertThatThrownBy(() -> resolver.resolve("prod", "http://my-cluster:9200"))
+  void resolve_adHocTarget_malformedAuthorization_throws() {
+    assertThatThrownBy(
+            () -> resolver.resolve(new ClusterTarget.AdHoc("http://cluster:9200", "Basic", false)))
         .isInstanceOf(IllegalArgumentException.class)
-        .hasMessage("Provide exactly one of clusterName or clusterUrl.");
+        .hasMessage("Authorization must use the format '<scheme> <credentials>'.");
   }
 
   @Test
-  void resolve_withClusterUrl_andValidAuthorizationHeader_returnsNewClient() {
-    MockHttpServletRequest request = new MockHttpServletRequest();
-    request.addHeader("X-OpenSearch-Authorization", "Basic YWRtaW46c2VjcmV0");
-    RequestContextHolder.setRequestAttributes(new ServletRequestAttributes(request));
-
-    RestClient result = resolver.resolve(null, "http://my-cluster:9200");
+  void resolve_adHocTarget_withValidAuthorization_returnsNewClient() {
+    RestClient result =
+        resolver.resolve(
+            new ClusterTarget.AdHoc("http://cluster:9200", "Basic YWRtaW46c2VjcmV0", true));
 
     assertThat(result).isNotNull().isNotSameAs(registeredClient);
-  }
-
-  @Test
-  void resolve_withClusterUrl_missingAuthorization_throws() {
-    MockHttpServletRequest request = new MockHttpServletRequest();
-    RequestContextHolder.setRequestAttributes(new ServletRequestAttributes(request));
-
-    assertThatThrownBy(() -> resolver.resolve(null, "http://my-cluster:9200"))
-        .isInstanceOf(IllegalArgumentException.class)
-        .hasMessage("clusterUrl requires X-OpenSearch-Authorization.");
-  }
-
-  @Test
-  void resolve_withClusterUrl_blankAuthorization_throws() {
-    MockHttpServletRequest request = new MockHttpServletRequest();
-    request.addHeader("X-OpenSearch-Authorization", "   ");
-    RequestContextHolder.setRequestAttributes(new ServletRequestAttributes(request));
-
-    assertThatThrownBy(() -> resolver.resolve(null, "http://my-cluster:9200"))
-        .isInstanceOf(IllegalArgumentException.class)
-        .hasMessage("clusterUrl requires X-OpenSearch-Authorization.");
-  }
-
-  @Test
-  void resolve_withClusterUrl_malformedAuthorization_throws() {
-    MockHttpServletRequest request = new MockHttpServletRequest();
-    request.addHeader("X-OpenSearch-Authorization", "Basic");
-    RequestContextHolder.setRequestAttributes(new ServletRequestAttributes(request));
-
-    assertThatThrownBy(() -> resolver.resolve(null, "http://my-cluster:9200"))
-        .isInstanceOf(IllegalArgumentException.class)
-        .hasMessage("X-OpenSearch-Authorization must use the format '<scheme> <credentials>'.");
-  }
-
-  @Test
-  void resolve_withClusterUrl_noRequestContext_throws() {
-    // No request context set — simulates stdio transport
-    assertThatThrownBy(() -> resolver.resolve(null, "http://my-cluster:9200"))
-        .isInstanceOf(IllegalArgumentException.class)
-        .hasMessageContaining("only supported over HTTP transport");
   }
 }

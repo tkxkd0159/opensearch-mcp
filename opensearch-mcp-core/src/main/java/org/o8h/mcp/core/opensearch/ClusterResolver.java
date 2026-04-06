@@ -14,35 +14,16 @@ import org.jspecify.annotations.Nullable;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.web.client.RestClient;
-import org.springframework.web.context.request.RequestContextHolder;
-import org.springframework.web.context.request.ServletRequestAttributes;
 
-/** Resolves OpenSearch clients from registered configuration or HTTP request headers. */
+/** Resolves OpenSearch clients from explicit registered or ad-hoc cluster targets. */
 public class ClusterResolver {
-
-  private static final String HEADER_AUTHORIZATION = "X-OpenSearch-Authorization";
-  private static final String HEADER_SSL_DISABLED = "X-OpenSearch-SSL-Disabled";
 
   private final Map<String, RestClient> registeredClients;
 
-  /**
-   * Creates a resolver backed by the configured cluster client map.
-   *
-   * @param registeredClients clients keyed by configured cluster name
-   */
   public ClusterResolver(Map<String, RestClient> registeredClients) {
     this.registeredClients = registeredClients;
   }
 
-  /**
-   * Resolves a client from either a registered cluster name or an ad-hoc cluster URL.
-   *
-   * @param clusterName configured cluster name, if using a registered client
-   * @param clusterUrl direct cluster URL, if using ad-hoc access
-   * @return the resolved client
-   * @throws IllegalArgumentException if neither input is provided or the requested client cannot be
-   *     resolved
-   */
   public RestClient resolve(@Nullable String clusterName, @Nullable String clusterUrl) {
     boolean hasClusterName = clusterName != null && !clusterName.isBlank();
     boolean hasClusterUrl = clusterUrl != null && !clusterUrl.isBlank();
@@ -52,57 +33,61 @@ public class ClusterResolver {
     }
 
     if (hasClusterName) {
-      RestClient client = registeredClients.get(clusterName);
-      if (client == null) {
-        throw new IllegalArgumentException(
-            "Unknown cluster: "
-                + clusterName
-                + ". Available clusters: "
-                + registeredClients.keySet());
-      }
-      return client;
+      return resolve(new ClusterTarget.Registered(requireValue(clusterName)));
     }
-    return buildAdHocClient(clusterUrl);
+
+    return resolve(new ClusterTarget.AdHoc(requireValue(clusterUrl), null, false));
   }
 
-  private RestClient buildAdHocClient(@Nullable String clusterUrl) {
-    if (clusterUrl == null) {
-      throw new IllegalArgumentException("Provide exactly one of clusterName or clusterUrl.");
-    }
+  public RestClient resolve(ClusterTarget target) {
+    return switch (target) {
+      case ClusterTarget.Registered(String clusterName) -> resolveRegistered(clusterName);
+      case ClusterTarget.AdHoc(
+          String clusterUrl, @Nullable String authorizationHeader, boolean sslDisabled) ->
+          buildAdHocClient(clusterUrl, authorizationHeader, sslDisabled);
+    };
+  }
 
-    var requestAttrs = RequestContextHolder.getRequestAttributes();
-    if (!(requestAttrs instanceof ServletRequestAttributes servletRequestAttributes)) {
+  private RestClient resolveRegistered(String clusterName) {
+    RestClient client = registeredClients.get(clusterName);
+    if (client == null) {
       throw new IllegalArgumentException(
-          "Ad-hoc mode (clusterUrl) is only supported over HTTP transport.");
+          "Unknown cluster: " + clusterName + ". Available clusters: " + registeredClients.keySet());
     }
-    var request = servletRequestAttributes.getRequest();
+    return client;
+  }
 
-    @Nullable String authorization = request.getHeader(HEADER_AUTHORIZATION);
-
-    if (authorization == null || authorization.isBlank()) {
-      throw new IllegalArgumentException("clusterUrl requires X-OpenSearch-Authorization.");
+  private RestClient buildAdHocClient(
+      String clusterUrl, @Nullable String authorizationHeader, boolean sslDisabled) {
+    if (authorizationHeader == null || authorizationHeader.isBlank()) {
+      throw new IllegalArgumentException("clusterUrl requires authorization credentials.");
     }
 
-    String[] authorizationParts = authorization.trim().split("\\s+", 2);
+    String[] authorizationParts = authorizationHeader.trim().split("\\s+", 2);
     if (authorizationParts.length != 2
         || authorizationParts[0].isBlank()
         || authorizationParts[1].isBlank()) {
       throw new IllegalArgumentException(
-          "X-OpenSearch-Authorization must use the format '<scheme> <credentials>'.");
+          "Authorization must use the format '<scheme> <credentials>'.");
     }
-
-    boolean sslDisabled = "true".equalsIgnoreCase(request.getHeader(HEADER_SSL_DISABLED));
 
     RestClient.Builder builder =
         RestClient.builder()
             .baseUrl(clusterUrl)
-            .defaultHeader(HttpHeaders.AUTHORIZATION, authorization);
+            .defaultHeader(HttpHeaders.AUTHORIZATION, authorizationHeader);
 
     if (sslDisabled) {
       builder.requestFactory(buildSslDisabledRequestFactory());
     }
 
     return builder.build();
+  }
+
+  private String requireValue(@Nullable String value) {
+    if (value == null) {
+      throw new IllegalArgumentException("Provide exactly one of clusterName or clusterUrl.");
+    }
+    return value;
   }
 
   private HttpComponentsClientHttpRequestFactory buildSslDisabledRequestFactory() {
