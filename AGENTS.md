@@ -32,4 +32,4 @@ Tests use JUnit 5, AssertJ, Spring test support, and Mockito where needed. Name 
 Recent history mostly follows conventional prefixes like `feat:`, `fix:`, `refactor:`, `build:`, `docs:`, and `chore:`. Keep commit subjects imperative and narrowly scoped, for example `fix: handle missing clusterName in allocation tool`. Pull requests should summarize the behavior change, list verification performed, and call out any config, transport, or auth impact. Include example requests or logs when changing MCP interaction flows. Use [pull_request_template](.github/pull_request_template.md) and `gh` CLI to create a PR after you complete a task. 
 
 ## Security & Configuration Tips
-Do not commit real cluster credentials or local-only overrides. Prefer environment variables such as `OPENSEARCH_USERNAME` and `OPENSEARCH_PASSWORD`, and use `.mcp.example.json` as the reference for local MCP client setup.
+Do not commit real cluster credentials or local-only overrides. Prefer environment variable `X-OpenSearch-Authorization`, and use `.mcp.example.json` as the reference for local MCP client setup.

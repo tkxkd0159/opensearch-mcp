@@ -10,7 +10,7 @@
 ```sh
 # build -> check -> test
 ./gradlew check                            # tests + Spotless + aggregate coverage + Javadoc
-./gradlew spotlessApply
+./gradlew spotlessApply                    # in-place formatting
 ./gradlew test                             # deterministic unit/default suite
 ./gradlew integrationTest
 ./gradlew jacocoAggregateReport           # generates the combined coverage report for inspection
