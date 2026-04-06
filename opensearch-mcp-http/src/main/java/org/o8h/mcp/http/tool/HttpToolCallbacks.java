@@ -2,10 +2,14 @@ package org.o8h.mcp.http.tool;
 
 import java.util.Map;
 import org.jspecify.annotations.Nullable;
+import org.o8h.mcp.core.tool.CatNodesTool;
 import org.o8h.mcp.core.tool.ClusterHealthTool;
 import org.o8h.mcp.core.tool.ClusterStateTool;
 import org.o8h.mcp.core.tool.GenericOpenSearchApiTool;
 import org.o8h.mcp.core.tool.GetAllocationTool;
+import org.o8h.mcp.core.tool.GetIndexInfoTool;
+import org.o8h.mcp.core.tool.GetIndexStatsTool;
+import org.o8h.mcp.core.tool.GetLongRunningTasksTool;
 import org.o8h.mcp.core.tool.GetNodesHotThreadsTool;
 import org.o8h.mcp.core.tool.GetNodesTool;
 import org.o8h.mcp.core.tool.GetSegmentsTool;
@@ -21,9 +25,13 @@ public class HttpToolCallbacks {
   private final ClusterStateTool clusterStateTool;
   private final GetShardsTool getShardsTool;
   private final GetSegmentsTool getSegmentsTool;
+  private final CatNodesTool catNodesTool;
   private final GetNodesTool getNodesTool;
+  private final GetIndexInfoTool getIndexInfoTool;
+  private final GetIndexStatsTool getIndexStatsTool;
   private final GetNodesHotThreadsTool getNodesHotThreadsTool;
   private final GetAllocationTool getAllocationTool;
+  private final GetLongRunningTasksTool getLongRunningTasksTool;
   private final GenericOpenSearchApiTool genericOpenSearchApiTool;
 
   /** Creates a new callbacks adapter for the HTTP transport. */
@@ -33,18 +41,26 @@ public class HttpToolCallbacks {
       ClusterStateTool clusterStateTool,
       GetShardsTool getShardsTool,
       GetSegmentsTool getSegmentsTool,
+      CatNodesTool catNodesTool,
       GetNodesTool getNodesTool,
+      GetIndexInfoTool getIndexInfoTool,
+      GetIndexStatsTool getIndexStatsTool,
       GetNodesHotThreadsTool getNodesHotThreadsTool,
       GetAllocationTool getAllocationTool,
+      GetLongRunningTasksTool getLongRunningTasksTool,
       GenericOpenSearchApiTool genericOpenSearchApiTool) {
     this.clusterTargetFactory = clusterTargetFactory;
     this.clusterHealthTool = clusterHealthTool;
     this.clusterStateTool = clusterStateTool;
     this.getShardsTool = getShardsTool;
     this.getSegmentsTool = getSegmentsTool;
+    this.catNodesTool = catNodesTool;
     this.getNodesTool = getNodesTool;
+    this.getIndexInfoTool = getIndexInfoTool;
+    this.getIndexStatsTool = getIndexStatsTool;
     this.getNodesHotThreadsTool = getNodesHotThreadsTool;
     this.getAllocationTool = getAllocationTool;
+    this.getLongRunningTasksTool = getLongRunningTasksTool;
     this.genericOpenSearchApiTool = genericOpenSearchApiTool;
   }
 
@@ -144,6 +160,28 @@ public class HttpToolCallbacks {
 
   @Tool(
       description =
+          "Lists node-level CAT information in an OpenSearch cluster, including node roles and load metrics. Columns can be limited to a comma-separated list of CAT node column names.")
+  public String catNodes(
+      @ToolParam(
+              description =
+                  "Name of the target registered OpenSearch cluster. Call listClusters to see available names. Provide exactly one of clusterName or clusterUrl.",
+              required = false)
+          @Nullable String clusterName,
+      @ToolParam(
+              description =
+                  "Direct URL of an OpenSearch cluster (e.g. https://my-cluster:9200). Use for ad-hoc access without pre-registration. Ad-hoc clusterUrl access is HTTP transport only. Requires X-OpenSearch-Authorization on the MCP request. Provide exactly one of clusterName or clusterUrl.",
+              required = false)
+          @Nullable String clusterUrl,
+      @ToolParam(
+              description =
+                  "Comma-separated CAT node columns to include via the _cat/nodes h parameter, such as ip,name or heap.percent,ram.percent.",
+              required = false)
+          @Nullable String columns) {
+    return catNodesTool.catNodes(clusterTargetFactory.create(clusterName, clusterUrl), columns);
+  }
+
+  @Tool(
+      description =
           "Gets detailed information about nodes in an OpenSearch cluster, including static information like host system details, JVM info, processor type, node settings, thread pools, and installed plugins. Metrics can be filtered to categories like: settings, os, process, jvm, thread_pool, transport, http, plugins, ingest.")
   public String getNodes(
       @ToolParam(
@@ -167,6 +205,56 @@ public class HttpToolCallbacks {
           @Nullable String metrics) {
     return getNodesTool.getNodes(
         clusterTargetFactory.create(clusterName, clusterUrl), nodeId, metrics);
+  }
+
+  @Tool(
+      description =
+          "Gets detailed information about an index including mappings, settings, and aliases. The index selector may be a concrete index name, alias, or wildcard pattern.")
+  public String getIndexInfo(
+      @ToolParam(
+              description =
+                  "Name of the target registered OpenSearch cluster. Call listClusters to see available names. Provide exactly one of clusterName or clusterUrl.",
+              required = false)
+          @Nullable String clusterName,
+      @ToolParam(
+              description =
+                  "Direct URL of an OpenSearch cluster (e.g. https://my-cluster:9200). Use for ad-hoc access without pre-registration. Ad-hoc clusterUrl access is HTTP transport only. Requires X-OpenSearch-Authorization on the MCP request. Provide exactly one of clusterName or clusterUrl.",
+              required = false)
+          @Nullable String clusterUrl,
+      @ToolParam(
+              description =
+                  "Required index name, alias, or wildcard pattern to retrieve metadata for.")
+          String index) {
+    return getIndexInfoTool.getIndexInfo(
+        clusterTargetFactory.create(clusterName, clusterUrl), index);
+  }
+
+  @Tool(
+      description =
+          "Gets index statistics including document counts, store size, and indexing or search metrics. Index selectors are index names, aliases, or wildcard patterns.")
+  public String getIndexStats(
+      @ToolParam(
+              description =
+                  "Name of the target registered OpenSearch cluster. Call listClusters to see available names. Provide exactly one of clusterName or clusterUrl.",
+              required = false)
+          @Nullable String clusterName,
+      @ToolParam(
+              description =
+                  "Direct URL of an OpenSearch cluster (e.g. https://my-cluster:9200). Use for ad-hoc access without pre-registration. Ad-hoc clusterUrl access is HTTP transport only. Requires X-OpenSearch-Authorization on the MCP request. Provide exactly one of clusterName or clusterUrl.",
+              required = false)
+          @Nullable String clusterUrl,
+      @ToolParam(
+              description =
+                  "Optional comma-separated index names, aliases, or wildcard patterns. Omit for cluster-wide stats.",
+              required = false)
+          @Nullable String indexIds,
+      @ToolParam(
+              description =
+                  "Optional comma-separated stats metric names, such as docs,store or indexing,search.",
+              required = false)
+          @Nullable String metrics) {
+    return getIndexStatsTool.getIndexStats(
+        clusterTargetFactory.create(clusterName, clusterUrl), indexIds, metrics);
   }
 
   @Tool(
@@ -216,6 +304,30 @@ public class HttpToolCallbacks {
 
   @Tool(
       description =
+          "Gets currently running tasks in an OpenSearch cluster, sorted by running time descending. Optionally filters the result to tasks running at least the requested number of seconds.")
+  public String getLongRunningTasks(
+      @ToolParam(
+              description =
+                  "Name of the target registered OpenSearch cluster. Call listClusters to see available names. Provide exactly one of clusterName or clusterUrl.",
+              required = false)
+          @Nullable String clusterName,
+      @ToolParam(
+              description =
+                  "Direct URL of an OpenSearch cluster (e.g. https://my-cluster:9200). Use for ad-hoc access without pre-registration. Ad-hoc clusterUrl access is HTTP transport only. Requires X-OpenSearch-Authorization on the MCP request. Provide exactly one of clusterName or clusterUrl.",
+              required = false)
+          @Nullable String clusterUrl,
+      @ToolParam(
+              description =
+                  "Optional non-negative minimum running time in seconds. When provided, only tasks at or above this threshold are returned.",
+              required = false)
+          @Nullable Integer minRunningSeconds) {
+    validateMinRunningSeconds(minRunningSeconds);
+    return getLongRunningTasksTool.getLongRunningTasks(
+        clusterTargetFactory.create(clusterName, clusterUrl), minRunningSeconds);
+  }
+
+  @Tool(
+      description =
           """
             Flexible interface to call any OpenSearch API endpoint. Use when:
             - Calling endpoints not covered by dedicated tools
@@ -261,5 +373,11 @@ public class HttpToolCallbacks {
         queryParams,
         body,
         headers);
+  }
+
+  private void validateMinRunningSeconds(@Nullable Integer minRunningSeconds) {
+    if (minRunningSeconds != null && minRunningSeconds < 0) {
+      throw new IllegalArgumentException("minRunningSeconds must be non-negative.");
+    }
   }
 }

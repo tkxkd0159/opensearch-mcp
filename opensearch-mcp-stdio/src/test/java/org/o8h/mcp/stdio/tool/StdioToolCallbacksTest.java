@@ -20,6 +20,8 @@ class StdioToolCallbacksTest {
             .toList();
 
     assertThat(toolMethods).isNotEmpty();
+    assertThat(toolMethods.stream().map(Method::getName))
+        .contains("catNodes", "getIndexInfo", "getIndexStats", "getLongRunningTasks");
 
     for (Method method : toolMethods) {
       Parameter[] parameters = method.getParameters();

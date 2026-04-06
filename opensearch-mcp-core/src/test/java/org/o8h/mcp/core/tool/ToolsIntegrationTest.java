@@ -28,11 +28,15 @@ class ToolsIntegrationTest {
 
   @Autowired private ClusterHealthTool clusterHealthTool;
   @Autowired private ClusterStateTool clusterStateTool;
+  @Autowired private CatNodesTool catNodesTool;
   @Autowired private GetNodesTool getNodesTool;
+  @Autowired private GetIndexInfoTool getIndexInfoTool;
+  @Autowired private GetIndexStatsTool getIndexStatsTool;
   @Autowired private GetAllocationTool getAllocationTool;
   @Autowired private GetShardsTool getShardsTool;
   @Autowired private GetSegmentsTool getSegmentsTool;
   @Autowired private GetNodesHotThreadsTool getNodesHotThreadsTool;
+  @Autowired private GetLongRunningTasksTool getLongRunningTasksTool;
   @Autowired private GenericOpenSearchApiTool genericOpenSearchApiTool;
 
   @DynamicPropertySource
@@ -68,6 +72,32 @@ class ToolsIntegrationTest {
     DocumentContext response = JsonPath.parse(getNodesTool.getNodes(LOCAL, null, null));
 
     assertThat(response.<Map<String, Object>>read("$.nodes")).hasSize(2);
+  }
+
+  @Test
+  void catNodes_returnsTwoNodeRows() {
+    java.util.List<Map<String, Object>> response =
+        readRows(catNodesTool.catNodes(LOCAL, "name,ip"));
+
+    assertThat(response).hasSize(2);
+    assertThat(response).allMatch(row -> row.containsKey("name") && row.containsKey("ip"));
+  }
+
+  @Test
+  void indexInfo_returnsBooksMetadata() {
+    DocumentContext response = JsonPath.parse(getIndexInfoTool.getIndexInfo(LOCAL, "books"));
+
+    assertThat(response.<Map<String, Object>>read("$.books.settings")).isNotEmpty();
+    assertThat(response.<Map<String, Object>>read("$.books.mappings")).isNotNull();
+    assertThat(response.<Map<String, Object>>read("$.books.aliases")).isNotNull();
+  }
+
+  @Test
+  void indexStats_returnsDocumentCountForBooks() {
+    DocumentContext response =
+        JsonPath.parse(getIndexStatsTool.getIndexStats(LOCAL, "books", "docs"));
+
+    assertThat(response.<Integer>read("$.indices.books.primaries.docs.count")).isEqualTo(1);
   }
 
   @Test
@@ -112,6 +142,13 @@ class ToolsIntegrationTest {
 
     assertThat(response).isNotBlank();
     assertThat(response).contains(":::");
+  }
+
+  @Test
+  void longRunningTasks_returnsJsonArray() {
+    Object root = JsonPath.parse(getLongRunningTasksTool.getLongRunningTasks(LOCAL, null)).json();
+
+    assertThat(root).isInstanceOf(java.util.List.class);
   }
 
   @Test
