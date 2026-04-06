@@ -26,7 +26,7 @@ public final class OpenSearchClusterFixture {
   private static final String ADMIN_PASSWORD = "LocalAdmin123!";
 
   private static final DockerImageName OPENSEARCH_IMAGE =
-      DockerImageName.parse("opensearchproject/opensearch:2.15.0");
+      DockerImageName.parse("opensearchproject/opensearch:3.5.0");
 
   private static @Nullable FixtureState fixtureState;
 

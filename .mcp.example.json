@@ -3,7 +3,10 @@
     "o8h-mcp-server-stdio": {
       "type": "stdio",
       "command": "java",
-      "args": ["-jar", "./build/libs/opensearch-mcp-stdio.jar"]
+      "args": [
+        "-jar", "./build/libs/opensearch-mcp-stdio-latest-SNAPSHOT.jar",
+        "--spring.config.additional-location=file:./opensearch-mcp-stdio/src/main/resources/application-local.yml"
+      ]
     },
     "o8h-mcp-server-http": {
       "type": "http",

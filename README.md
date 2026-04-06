@@ -12,7 +12,7 @@
 ./gradlew check                            # tests + Spotless + aggregate coverage + Javadoc
 ./gradlew spotlessApply                    # in-place formatting
 ./gradlew test                             # deterministic unit/default suite
-./gradlew :opensearch-mcp-core:integrationTest
+./gradlew integrationTest
 ./gradlew jacocoAggregateReport           # generates the combined coverage report for inspection
 ./gradlew javadoc                         # aggregate root docs at build/docs/javadoc
 ```

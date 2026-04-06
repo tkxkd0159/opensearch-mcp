@@ -103,8 +103,7 @@ class ToolsIntegrationTest {
         readRows(getSegmentsTool.getSegments(LOCAL, "books"));
 
     assertThat(response).isNotEmpty();
-    assertThat(response.stream().map(row -> value(row, "index")))
-        .anyMatch(index -> "books".equals(index));
+    assertThat(response.stream().map(row -> value(row, "index"))).anyMatch("books"::equals);
   }
 
   @Test
