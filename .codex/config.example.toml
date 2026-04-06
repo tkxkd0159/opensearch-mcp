@@ -7,16 +7,20 @@ url = "http://localhost:8080/mcp"
 
 [mcp_servers.o8h_mcp_server_http_adhoc]
 url = "http://localhost:8080/mcp"
-http_headers = { X-OpenSearch-Username = "admin", X-OpenSearch-Password = "LocalAdmin123!", X-OpenSearch-SSL-Disabled = "true" }
+http_headers = { X-OpenSearch-Authorization = "Basic YWRtaW46TG9jYWxBZG1pbjEyMyE=", X-OpenSearch-SSL-Disabled = "true" }
 
 [mcp_servers.auth_proxy_o8g]
 command = "npx"
 args = [
-  "-y",
-  "file:./proxy/mcp-proxy-1.0.0.tgz",
-  "http://localhost:8080/mcp",
-  "--issuer-url", "your-issuer-url",
-  "--port", "9080",
-  "--client-id", "your-client-id",
-  "--scope", "openid email profile profile_preferred_username",
+    "-y",
+    "file:./proxy/mcp-proxy-1.0.0.tgz",
+    "http://localhost:8080/mcp",
+    "--issuer-url",
+    "your-issuer-url",
+    "--port",
+    "9080",
+    "--client-id",
+    "your-client-id",
+    "--scope",
+    "openid email profile profile_preferred_username",
 ]
