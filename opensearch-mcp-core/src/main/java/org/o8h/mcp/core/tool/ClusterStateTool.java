@@ -1,9 +1,8 @@
 package org.o8h.mcp.core.tool;
 
 import org.jspecify.annotations.Nullable;
+import org.o8h.mcp.core.opensearch.ClusterTarget;
 import org.o8h.mcp.core.opensearch.ClusterResolver;
-import org.springframework.ai.tool.annotation.Tool;
-import org.springframework.ai.tool.annotation.ToolParam;
 
 /** Reads cluster state information from OpenSearch. */
 public class ClusterStateTool {
@@ -22,40 +21,17 @@ public class ClusterStateTool {
   /**
    * Fetches cluster state for the selected metrics and indices.
    *
-   * @param clusterName configured cluster name, if using a registered client
-   * @param clusterUrl ad-hoc cluster URL, if using direct access
+   * @param target transport-neutral cluster target
    * @param metrics optional metric filter
    * @param indices optional index filter
    * @return the raw JSON response or an error message
    */
-  @Tool(
-      description =
-          "Gets the current state of an OpenSearch cluster including node information, index metadata, shard routing, and blocks. Metrics can be filtered to: nodes, metadata, blocks, routing_table, routing_nodes, version, state_uuid. Indices can be filtered by name or wildcard.")
   public String getClusterState(
-      @ToolParam(
-              description =
-                  "Name of the target registered OpenSearch cluster. Call listClusters to see available names. Provide exactly one of clusterName or clusterUrl.",
-              required = false)
-          @Nullable String clusterName,
-      @ToolParam(
-              description =
-                  "Direct URL of an OpenSearch cluster (e.g. https://my-cluster:9200). Use for ad-hoc access without pre-registration. Ad-hoc clusterUrl access is HTTP transport only. Requires X-OpenSearch-Authorization on the MCP request. Provide exactly one of clusterName or clusterUrl.",
-              required = false)
-          @Nullable String clusterUrl,
-      @ToolParam(
-              description =
-                  "Comma-separated metrics to retrieve (nodes, metadata, blocks, routing_table, routing_nodes, version, state_uuid). Omit for all metrics.",
-              required = false)
-          @Nullable String metrics,
-      @ToolParam(
-              description =
-                  "Comma-separated index names or wildcards to filter. Omit for all indices.",
-              required = false)
-          @Nullable String indices) {
+      @Nullable ClusterTarget target, @Nullable String metrics, @Nullable String indices) {
     return ToolCallHelper.execute(
         () ->
             clusterResolver
-                .resolve(clusterName, clusterUrl)
+                .resolve(target)
                 .get()
                 .uri(buildPath(metrics, indices))
                 .retrieve()

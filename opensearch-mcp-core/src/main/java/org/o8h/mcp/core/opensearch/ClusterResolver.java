@@ -24,22 +24,11 @@ public class ClusterResolver {
     this.registeredClients = registeredClients;
   }
 
-  public RestClient resolve(@Nullable String clusterName, @Nullable String clusterUrl) {
-    boolean hasClusterName = clusterName != null && !clusterName.isBlank();
-    boolean hasClusterUrl = clusterUrl != null && !clusterUrl.isBlank();
-
-    if (hasClusterName == hasClusterUrl) {
-      throw new IllegalArgumentException("Provide exactly one of clusterName or clusterUrl.");
+  public RestClient resolve(@Nullable ClusterTarget target) {
+    if (target == null) {
+      throw new IllegalArgumentException("Cluster target is required.");
     }
 
-    if (hasClusterName) {
-      return resolve(new ClusterTarget.Registered(requireValue(clusterName)));
-    }
-
-    return resolve(new ClusterTarget.AdHoc(requireValue(clusterUrl), null, false));
-  }
-
-  public RestClient resolve(ClusterTarget target) {
     return switch (target) {
       case ClusterTarget.Registered(String clusterName) -> resolveRegistered(clusterName);
       case ClusterTarget.AdHoc(
@@ -81,13 +70,6 @@ public class ClusterResolver {
     }
 
     return builder.build();
-  }
-
-  private String requireValue(@Nullable String value) {
-    if (value == null) {
-      throw new IllegalArgumentException("Provide exactly one of clusterName or clusterUrl.");
-    }
-    return value;
   }
 
   private HttpComponentsClientHttpRequestFactory buildSslDisabledRequestFactory() {

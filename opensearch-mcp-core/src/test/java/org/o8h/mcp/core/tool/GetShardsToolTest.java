@@ -8,6 +8,7 @@ import static org.springframework.test.web.client.response.MockRestResponseCreat
 import java.util.Map;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.o8h.mcp.core.opensearch.ClusterTarget;
 import org.o8h.mcp.core.opensearch.ClusterResolver;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
@@ -15,6 +16,9 @@ import org.springframework.test.web.client.MockRestServiceServer;
 import org.springframework.web.client.RestClient;
 
 class GetShardsToolTest {
+
+  private static final ClusterTarget.Registered LOCAL = new ClusterTarget.Registered("local");
+  private static final ClusterTarget.Registered UNKNOWN = new ClusterTarget.Registered("unknown");
 
   private MockRestServiceServer mockServer;
   private GetShardsTool tool;
@@ -34,7 +38,7 @@ class GetShardsToolTest {
         .andExpect(method(HttpMethod.GET))
         .andRespond(withSuccess("[]", MediaType.APPLICATION_JSON));
 
-    String result = tool.getShards("local", null, null);
+    String result = tool.getShards(LOCAL, null);
 
     mockServer.verify();
     assertThat(result).isNotNull();
@@ -47,7 +51,7 @@ class GetShardsToolTest {
         .andExpect(method(HttpMethod.GET))
         .andRespond(withSuccess("[]", MediaType.APPLICATION_JSON));
 
-    String result = tool.getShards("local", null, "my-index");
+    String result = tool.getShards(LOCAL, "my-index");
 
     mockServer.verify();
     assertThat(result).isNotNull();
@@ -55,13 +59,13 @@ class GetShardsToolTest {
 
   @Test
   void getShards_unknownCluster_returnsError() {
-    String result = tool.getShards("unknown", null, null);
+    String result = tool.getShards(UNKNOWN, null);
     assertThat(result).contains("Unknown cluster: unknown");
   }
 
   @Test
-  void getShards_bothNull_returnsError() {
-    String result = tool.getShards(null, null, null);
-    assertThat(result).contains("Provide exactly one of clusterName or clusterUrl.");
+  void getShards_nullTarget_returnsError() {
+    String result = tool.getShards(null, null);
+    assertThat(result).contains("Cluster target is required.");
   }
 }

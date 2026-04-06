@@ -5,11 +5,10 @@ import java.util.Map;
 import java.util.Set;
 import java.util.function.Consumer;
 import org.jspecify.annotations.Nullable;
+import org.o8h.mcp.core.opensearch.ClusterTarget;
 import org.o8h.mcp.core.opensearch.ClusterResolver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.ai.tool.annotation.Tool;
-import org.springframework.ai.tool.annotation.ToolParam;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.web.client.ResourceAccessException;
@@ -43,8 +42,7 @@ public class GenericOpenSearchApiTool {
   /**
    * Calls an arbitrary OpenSearch API path.
    *
-   * @param clusterName configured cluster name, if using a registered client
-   * @param clusterUrl ad-hoc cluster URL, if using direct access
+   * @param target transport-neutral cluster target
    * @param path OpenSearch API path beginning with {@code /}
    * @param method HTTP method name
    * @param queryParams optional query parameters
@@ -52,51 +50,17 @@ public class GenericOpenSearchApiTool {
    * @param headers optional additional headers
    * @return the raw response body or an error message
    */
-  @Tool(
-      description =
-          """
-            Flexible interface to call any OpenSearch API endpoint. Use when:
-            - Calling endpoints not covered by dedicated tools
-            - Performing complex operations with custom parameters
-            - Accessing newer OpenSearch features
-            Write operations (POST, PUT, DELETE, PATCH) require opensearch.write-enabled=true.
-            """)
   public String callApi(
-      @ToolParam(
-              description =
-                  "Name of the target registered OpenSearch cluster. Call listClusters to see available names. Provide exactly one of clusterName or clusterUrl.",
-              required = false)
-          @Nullable String clusterName,
-      @ToolParam(
-              description =
-                  "Direct URL of an OpenSearch cluster (e.g. https://my-cluster:9200). Use for ad-hoc access without pre-registration. Ad-hoc clusterUrl access is HTTP transport only. Requires X-OpenSearch-Authorization on the MCP request. Provide exactly one of clusterName or clusterUrl.",
-              required = false)
-          @Nullable String clusterUrl,
-      @ToolParam(description = "API path, e.g. /_search or /my-index/_doc/1. Must start with /.")
-          String path,
-      @ToolParam(
-              description =
-                  "HTTP method: GET, POST, PUT, DELETE, PATCH, or HEAD. GET and HEAD are always allowed. POST, PUT, DELETE, PATCH require write operations to be enabled.")
-          @Nullable String method,
-      @ToolParam(
-              description =
-                  "Query string parameters to append to the URL, e.g. {\"v\": \"true\", \"format\": \"json\"}.",
-              required = false)
-          @Nullable Map<String, String> queryParams,
-      @ToolParam(
-              description =
-                  "Raw JSON request body. Sent when non-null and non-blank. Valid for all methods including GET (e.g. GET /_search with a query DSL body).",
-              required = false)
-          @Nullable String body,
-      @ToolParam(
-              description = "Additional HTTP headers to include in the request.",
-              required = false)
-          @Nullable Map<String, String> headers) {
+      @Nullable ClusterTarget target,
+      String path,
+      @Nullable String method,
+      @Nullable Map<String, String> queryParams,
+      @Nullable String body,
+      @Nullable Map<String, String> headers) {
     try {
       log.debug(
-          "callApi invoked: clusterName={}, clusterUrl={}, path={}, method={}, queryParams={}, body={}, headers={}",
-          clusterName,
-          clusterUrl,
+          "callApi invoked: target={}, path={}, method={}, queryParams={}, body={}, headers={}",
+          target,
           path,
           method,
           queryParams,
@@ -117,7 +81,7 @@ public class GenericOpenSearchApiTool {
         return "Write operations are disabled. Set opensearch.write-enabled=true to allow.";
       }
 
-      RestClient client = clusterResolver.resolve(clusterName, clusterUrl);
+      RestClient client = clusterResolver.resolve(target);
 
       Consumer<HttpHeaders> headersConsumer =
           h -> {
@@ -152,8 +116,8 @@ public class GenericOpenSearchApiTool {
       return e.getResponseBodyAsString();
     } catch (ResourceAccessException e) {
       log.warn(
-          "callApi network error: clusterName={}, path={}, method={}: {}",
-          clusterName,
+          "callApi network error: target={}, path={}, method={}: {}",
+          target,
           path,
           method,
           e.getMessage());

@@ -20,6 +20,13 @@ class ClusterResolverTest {
   }
 
   @Test
+  void resolve_nullTarget_throws() {
+    assertThatThrownBy(() -> resolver.resolve(null))
+        .isInstanceOf(IllegalArgumentException.class)
+        .hasMessage("Cluster target is required.");
+  }
+
+  @Test
   void resolve_unknownRegisteredTarget_throwsWithMessage() {
     assertThatThrownBy(() -> resolver.resolve(new ClusterTarget.Registered("unknown")))
         .isInstanceOf(IllegalArgumentException.class)

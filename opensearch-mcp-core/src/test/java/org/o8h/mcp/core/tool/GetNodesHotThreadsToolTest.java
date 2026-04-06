@@ -8,6 +8,7 @@ import static org.springframework.test.web.client.response.MockRestResponseCreat
 import java.util.Map;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.o8h.mcp.core.opensearch.ClusterTarget;
 import org.o8h.mcp.core.opensearch.ClusterResolver;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
@@ -15,6 +16,9 @@ import org.springframework.test.web.client.MockRestServiceServer;
 import org.springframework.web.client.RestClient;
 
 class GetNodesHotThreadsToolTest {
+
+  private static final ClusterTarget.Registered LOCAL = new ClusterTarget.Registered("local");
+  private static final ClusterTarget.Registered UNKNOWN = new ClusterTarget.Registered("unknown");
 
   private MockRestServiceServer mockServer;
   private GetNodesHotThreadsTool tool;
@@ -34,7 +38,7 @@ class GetNodesHotThreadsToolTest {
         .andExpect(method(HttpMethod.GET))
         .andRespond(withSuccess("::: thread info :::", MediaType.TEXT_PLAIN));
 
-    String result = tool.getNodesHotThreads("local", null, null);
+    String result = tool.getNodesHotThreads(LOCAL, null);
 
     mockServer.verify();
     assertThat(result).isNotNull();
@@ -47,7 +51,7 @@ class GetNodesHotThreadsToolTest {
         .andExpect(method(HttpMethod.GET))
         .andRespond(withSuccess("::: thread info :::", MediaType.TEXT_PLAIN));
 
-    String result = tool.getNodesHotThreads("local", null, "node1");
+    String result = tool.getNodesHotThreads(LOCAL, "node1");
 
     mockServer.verify();
     assertThat(result).isNotNull();
@@ -55,13 +59,13 @@ class GetNodesHotThreadsToolTest {
 
   @Test
   void getNodesHotThreads_unknownCluster_returnsError() {
-    String result = tool.getNodesHotThreads("unknown", null, null);
+    String result = tool.getNodesHotThreads(UNKNOWN, null);
     assertThat(result).contains("Unknown cluster: unknown");
   }
 
   @Test
-  void getNodesHotThreads_bothNull_returnsError() {
-    String result = tool.getNodesHotThreads(null, null, null);
-    assertThat(result).contains("Provide exactly one of clusterName or clusterUrl.");
+  void getNodesHotThreads_nullTarget_returnsError() {
+    String result = tool.getNodesHotThreads(null, null);
+    assertThat(result).contains("Cluster target is required.");
   }
 }

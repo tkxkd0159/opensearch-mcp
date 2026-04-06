@@ -10,5 +10,5 @@ import org.springframework.context.annotation.Import;
 /** Enables the shared OpenSearch MCP configuration for a Spring application. */
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
-@Import({OpenSearchConfig.class, McpToolConfig.class})
+@Import({OpenSearchConfig.class, CoreToolConfig.class})
 public @interface EnableOpensearchMcp {}

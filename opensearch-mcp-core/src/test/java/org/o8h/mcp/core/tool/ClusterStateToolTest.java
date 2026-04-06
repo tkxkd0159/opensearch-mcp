@@ -8,6 +8,7 @@ import static org.springframework.test.web.client.response.MockRestResponseCreat
 import java.util.Map;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.o8h.mcp.core.opensearch.ClusterTarget;
 import org.o8h.mcp.core.opensearch.ClusterResolver;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
@@ -15,6 +16,9 @@ import org.springframework.test.web.client.MockRestServiceServer;
 import org.springframework.web.client.RestClient;
 
 class ClusterStateToolTest {
+
+  private static final ClusterTarget.Registered LOCAL = new ClusterTarget.Registered("local");
+  private static final ClusterTarget.Registered UNKNOWN = new ClusterTarget.Registered("unknown");
 
   private MockRestServiceServer mockServer;
   private ClusterStateTool tool;
@@ -34,7 +38,7 @@ class ClusterStateToolTest {
         .andExpect(method(HttpMethod.GET))
         .andRespond(withSuccess("{\"cluster_name\":\"test\"}", MediaType.APPLICATION_JSON));
 
-    String result = tool.getClusterState("local", null, null, null);
+    String result = tool.getClusterState(LOCAL, null, null);
 
     mockServer.verify();
     assertThat(result).contains("cluster_name");
@@ -47,7 +51,7 @@ class ClusterStateToolTest {
         .andExpect(method(HttpMethod.GET))
         .andRespond(withSuccess("{\"nodes\":{}}", MediaType.APPLICATION_JSON));
 
-    String result = tool.getClusterState("local", null, "nodes", null);
+    String result = tool.getClusterState(LOCAL, "nodes", null);
 
     mockServer.verify();
     assertThat(result).contains("nodes");
@@ -60,7 +64,7 @@ class ClusterStateToolTest {
         .andExpect(method(HttpMethod.GET))
         .andRespond(withSuccess("{\"metadata\":{}}", MediaType.APPLICATION_JSON));
 
-    String result = tool.getClusterState("local", null, "metadata", "my-index");
+    String result = tool.getClusterState(LOCAL, "metadata", "my-index");
 
     mockServer.verify();
     assertThat(result).contains("metadata");
@@ -68,13 +72,13 @@ class ClusterStateToolTest {
 
   @Test
   void getClusterState_unknownCluster_returnsError() {
-    String result = tool.getClusterState("unknown", null, null, null);
+    String result = tool.getClusterState(UNKNOWN, null, null);
     assertThat(result).contains("Unknown cluster: unknown");
   }
 
   @Test
-  void getClusterState_bothNull_returnsError() {
-    String result = tool.getClusterState(null, null, null, null);
-    assertThat(result).contains("Provide exactly one of clusterName or clusterUrl.");
+  void getClusterState_nullTarget_returnsError() {
+    String result = tool.getClusterState(null, null, null);
+    assertThat(result).contains("Cluster target is required.");
   }
 }

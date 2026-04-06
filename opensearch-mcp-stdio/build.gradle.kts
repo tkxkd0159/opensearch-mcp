@@ -14,6 +14,7 @@ dependencies {
 
     annotationProcessor(platform(libs.spring.boot.dependencies))
 
+    testImplementation(libs.spring.boot.starter.webmvc.test)
     testRuntimeOnly(libs.junit.platform.launcher)
 }
 
