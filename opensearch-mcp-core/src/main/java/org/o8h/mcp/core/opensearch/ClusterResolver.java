@@ -20,10 +20,21 @@ public class ClusterResolver {
 
   private final Map<String, RestClient> registeredClients;
 
+  /**
+   * Creates a resolver backed by the registered transport clients.
+   *
+   * @param registeredClients registered clients keyed by cluster name
+   */
   public ClusterResolver(Map<String, RestClient> registeredClients) {
     this.registeredClients = registeredClients;
   }
 
+  /**
+   * Resolves the REST client for a registered or ad-hoc cluster target.
+   *
+   * @param target cluster target to resolve
+   * @return REST client configured for the requested cluster
+   */
   public RestClient resolve(@Nullable ClusterTarget target) {
     if (target == null) {
       throw new IllegalArgumentException("Cluster target is required.");

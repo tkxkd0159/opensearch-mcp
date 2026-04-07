@@ -13,6 +13,9 @@ public class HttpClusterTargetFactory {
   static final String AUTHORIZATION_HEADER = "X-OpenSearch-Authorization";
   static final String SSL_DISABLED_HEADER = "X-OpenSearch-SSL-Disabled";
 
+  /** Creates a new HTTP cluster target factory. */
+  public HttpClusterTargetFactory() {}
+
   /**
    * Creates a cluster target from the HTTP tool arguments and current request headers.
    *

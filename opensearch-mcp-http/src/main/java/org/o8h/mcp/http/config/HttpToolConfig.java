@@ -27,11 +27,34 @@ public class HttpToolConfig {
   /** Creates a new configuration instance. */
   public HttpToolConfig() {}
 
+  /**
+   * Creates the HTTP cluster target factory bean.
+   *
+   * @return the HTTP cluster target factory
+   */
   @Bean
   public HttpClusterTargetFactory httpClusterTargetFactory() {
     return new HttpClusterTargetFactory();
   }
 
+  /**
+   * Creates the HTTP transport callback adapter bean.
+   *
+   * @param httpClusterTargetFactory factory that derives cluster targets from HTTP requests
+   * @param clusterHealthTool tool that retrieves cluster health information
+   * @param clusterStateTool tool that retrieves cluster state information
+   * @param getShardsTool tool that lists shard information
+   * @param getSegmentsTool tool that retrieves segment information
+   * @param catNodesTool tool that lists CAT node information
+   * @param getNodesTool tool that retrieves node information
+   * @param getIndexInfoTool tool that retrieves index metadata
+   * @param getIndexStatsTool tool that retrieves index statistics
+   * @param getNodesHotThreadsTool tool that retrieves node hot threads information
+   * @param getAllocationTool tool that retrieves shard allocation information
+   * @param getLongRunningTasksTool tool that retrieves long-running task information
+   * @param genericOpenSearchApiTool tool that calls arbitrary OpenSearch APIs
+   * @return the HTTP transport callback adapter
+   */
   @Bean
   public HttpToolCallbacks httpToolCallbacks(
       HttpClusterTargetFactory httpClusterTargetFactory,
@@ -63,6 +86,13 @@ public class HttpToolConfig {
         genericOpenSearchApiTool);
   }
 
+  /**
+   * Creates the HTTP tool callback provider bean.
+   *
+   * @param httpToolCallbacks HTTP transport tool callbacks
+   * @param listClustersTool registered cluster listing tool
+   * @return the HTTP tool callback provider
+   */
   @Bean
   public ToolCallbackProvider toolCallbackProvider(
       HttpToolCallbacks httpToolCallbacks, ListClustersTool listClustersTool) {

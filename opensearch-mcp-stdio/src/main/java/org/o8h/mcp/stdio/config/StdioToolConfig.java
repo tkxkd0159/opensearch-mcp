@@ -26,6 +26,23 @@ public class StdioToolConfig {
   /** Creates a new configuration instance. */
   public StdioToolConfig() {}
 
+  /**
+   * Creates the stdio transport callback adapter bean.
+   *
+   * @param clusterHealthTool tool that retrieves cluster health information
+   * @param clusterStateTool tool that retrieves cluster state information
+   * @param getShardsTool tool that lists shard information
+   * @param getSegmentsTool tool that retrieves segment information
+   * @param catNodesTool tool that lists CAT node information
+   * @param getNodesTool tool that retrieves node information
+   * @param getIndexInfoTool tool that retrieves index metadata
+   * @param getIndexStatsTool tool that retrieves index statistics
+   * @param getNodesHotThreadsTool tool that retrieves node hot threads information
+   * @param getAllocationTool tool that retrieves shard allocation information
+   * @param getLongRunningTasksTool tool that retrieves long-running task information
+   * @param genericOpenSearchApiTool tool that calls arbitrary OpenSearch APIs
+   * @return the stdio transport callback adapter
+   */
   @Bean
   public StdioToolCallbacks stdioToolCallbacks(
       ClusterHealthTool clusterHealthTool,
@@ -55,6 +72,13 @@ public class StdioToolConfig {
         genericOpenSearchApiTool);
   }
 
+  /**
+   * Creates the stdio tool callback provider bean.
+   *
+   * @param stdioToolCallbacks stdio transport tool callbacks
+   * @param listClustersTool registered cluster listing tool
+   * @return the stdio tool callback provider
+   */
   @Bean
   public ToolCallbackProvider toolCallbackProvider(
       StdioToolCallbacks stdioToolCallbacks, ListClustersTool listClustersTool) {
