@@ -3,10 +3,14 @@ package org.o8h.mcp.core.config;
 import java.util.Map;
 import org.o8h.mcp.core.opensearch.ClusterResolver;
 import org.o8h.mcp.core.opensearch.OpenSearchProperties;
+import org.o8h.mcp.core.tool.CatNodesTool;
 import org.o8h.mcp.core.tool.ClusterHealthTool;
 import org.o8h.mcp.core.tool.ClusterStateTool;
 import org.o8h.mcp.core.tool.GenericOpenSearchApiTool;
 import org.o8h.mcp.core.tool.GetAllocationTool;
+import org.o8h.mcp.core.tool.GetIndexInfoTool;
+import org.o8h.mcp.core.tool.GetIndexStatsTool;
+import org.o8h.mcp.core.tool.GetLongRunningTasksTool;
 import org.o8h.mcp.core.tool.GetNodesHotThreadsTool;
 import org.o8h.mcp.core.tool.GetNodesTool;
 import org.o8h.mcp.core.tool.GetSegmentsTool;
@@ -79,6 +83,17 @@ public class CoreToolConfig {
   }
 
   /**
+   * Creates the CAT nodes inspection service bean.
+   *
+   * @param clusterResolver cluster resolver shared by all services
+   * @return the CAT nodes service
+   */
+  @Bean
+  public CatNodesTool catNodesTool(ClusterResolver clusterResolver) {
+    return new CatNodesTool(clusterResolver);
+  }
+
+  /**
    * Creates the node inspection service bean.
    *
    * @param clusterResolver cluster resolver shared by all services
@@ -87,6 +102,28 @@ public class CoreToolConfig {
   @Bean
   public GetNodesTool getNodesTool(ClusterResolver clusterResolver) {
     return new GetNodesTool(clusterResolver);
+  }
+
+  /**
+   * Creates the index metadata inspection service bean.
+   *
+   * @param clusterResolver cluster resolver shared by all services
+   * @return the index metadata service
+   */
+  @Bean
+  public GetIndexInfoTool getIndexInfoTool(ClusterResolver clusterResolver) {
+    return new GetIndexInfoTool(clusterResolver);
+  }
+
+  /**
+   * Creates the index stats inspection service bean.
+   *
+   * @param clusterResolver cluster resolver shared by all services
+   * @return the index stats service
+   */
+  @Bean
+  public GetIndexStatsTool getIndexStatsTool(ClusterResolver clusterResolver) {
+    return new GetIndexStatsTool(clusterResolver);
   }
 
   /**
@@ -109,6 +146,17 @@ public class CoreToolConfig {
   @Bean
   public GetAllocationTool getAllocationTool(ClusterResolver clusterResolver) {
     return new GetAllocationTool(clusterResolver);
+  }
+
+  /**
+   * Creates the long-running tasks inspection service bean.
+   *
+   * @param clusterResolver cluster resolver shared by all services
+   * @return the long-running tasks service
+   */
+  @Bean
+  public GetLongRunningTasksTool getLongRunningTasksTool(ClusterResolver clusterResolver) {
+    return new GetLongRunningTasksTool(clusterResolver);
   }
 
   /**

@@ -11,10 +11,14 @@ import java.lang.reflect.Parameter;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.o8h.mcp.core.opensearch.ClusterTarget;
+import org.o8h.mcp.core.tool.CatNodesTool;
 import org.o8h.mcp.core.tool.ClusterHealthTool;
 import org.o8h.mcp.core.tool.ClusterStateTool;
 import org.o8h.mcp.core.tool.GenericOpenSearchApiTool;
 import org.o8h.mcp.core.tool.GetAllocationTool;
+import org.o8h.mcp.core.tool.GetIndexInfoTool;
+import org.o8h.mcp.core.tool.GetIndexStatsTool;
+import org.o8h.mcp.core.tool.GetLongRunningTasksTool;
 import org.o8h.mcp.core.tool.GetNodesHotThreadsTool;
 import org.o8h.mcp.core.tool.GetNodesTool;
 import org.o8h.mcp.core.tool.GetSegmentsTool;
@@ -64,9 +68,13 @@ class HttpToolCallbacksTest {
             mock(ClusterStateTool.class),
             mock(GetShardsTool.class),
             mock(GetSegmentsTool.class),
+            mock(CatNodesTool.class),
             mock(GetNodesTool.class),
+            mock(GetIndexInfoTool.class),
+            mock(GetIndexStatsTool.class),
             mock(GetNodesHotThreadsTool.class),
             mock(GetAllocationTool.class),
+            mock(GetLongRunningTasksTool.class),
             mock(GenericOpenSearchApiTool.class));
 
     MockHttpServletRequest request = new MockHttpServletRequest();
@@ -80,5 +88,26 @@ class HttpToolCallbacksTest {
     verify(clusterHealthTool)
         .getClusterHealth(
             new ClusterTarget.AdHoc("https://cluster:9200", "Basic token", true), "logs-*");
+  }
+
+  @Test
+  void newToolMethods_preserveToolSignatureMetadata() throws Exception {
+    assertToolSignature("catNodes", String.class, String.class, String.class);
+    assertToolSignature("getIndexInfo", String.class, String.class, String.class);
+    assertToolSignature("getIndexStats", String.class, String.class, String.class, String.class);
+    assertToolSignature("getLongRunningTasks", String.class, String.class, Integer.class);
+
+    Method getIndexStats =
+        HttpToolCallbacks.class.getMethod(
+            "getIndexStats", String.class, String.class, String.class, String.class);
+    assertThat(getIndexStats.getParameters()[2].getName()).isEqualTo("index");
+  }
+
+  private void assertToolSignature(String methodName, Class<?>... parameterTypes) throws Exception {
+    Method method = HttpToolCallbacks.class.getMethod(methodName, parameterTypes);
+
+    assertThat(method.isAnnotationPresent(Tool.class)).isTrue();
+    assertThat(method.getName()).isEqualTo(methodName);
+    assertThat(method.getParameters()).hasSize(parameterTypes.length);
   }
 }

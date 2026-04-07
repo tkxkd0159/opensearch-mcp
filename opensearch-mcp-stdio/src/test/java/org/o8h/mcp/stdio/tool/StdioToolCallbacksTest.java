@@ -20,6 +20,8 @@ class StdioToolCallbacksTest {
             .toList();
 
     assertThat(toolMethods).isNotEmpty();
+    assertThat(toolMethods.stream().map(Method::getName))
+        .contains("catNodes", "getIndexInfo", "getIndexStats", "getLongRunningTasks");
 
     for (Method method : toolMethods) {
       Parameter[] parameters = method.getParameters();
@@ -27,5 +29,14 @@ class StdioToolCallbacksTest {
       assertThat(parameters[0].getName()).isEqualTo("clusterName");
       assertThat(parameters[0].getAnnotation(ToolParam.class).required()).isTrue();
     }
+  }
+
+  @Test
+  void getIndexStats_usesIndexParameterName() throws Exception {
+    Method method =
+        StdioToolCallbacks.class.getMethod(
+            "getIndexStats", String.class, String.class, String.class);
+
+    assertThat(method.getParameters()[1].getName()).isEqualTo("index");
   }
 }

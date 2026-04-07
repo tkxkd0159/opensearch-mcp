@@ -1,9 +1,13 @@
 package org.o8h.mcp.http.config;
 
+import org.o8h.mcp.core.tool.CatNodesTool;
 import org.o8h.mcp.core.tool.ClusterHealthTool;
 import org.o8h.mcp.core.tool.ClusterStateTool;
 import org.o8h.mcp.core.tool.GenericOpenSearchApiTool;
 import org.o8h.mcp.core.tool.GetAllocationTool;
+import org.o8h.mcp.core.tool.GetIndexInfoTool;
+import org.o8h.mcp.core.tool.GetIndexStatsTool;
+import org.o8h.mcp.core.tool.GetLongRunningTasksTool;
 import org.o8h.mcp.core.tool.GetNodesHotThreadsTool;
 import org.o8h.mcp.core.tool.GetNodesTool;
 import org.o8h.mcp.core.tool.GetSegmentsTool;
@@ -35,9 +39,13 @@ public class HttpToolConfig {
       ClusterStateTool clusterStateTool,
       GetShardsTool getShardsTool,
       GetSegmentsTool getSegmentsTool,
+      CatNodesTool catNodesTool,
       GetNodesTool getNodesTool,
+      GetIndexInfoTool getIndexInfoTool,
+      GetIndexStatsTool getIndexStatsTool,
       GetNodesHotThreadsTool getNodesHotThreadsTool,
       GetAllocationTool getAllocationTool,
+      GetLongRunningTasksTool getLongRunningTasksTool,
       GenericOpenSearchApiTool genericOpenSearchApiTool) {
     return new HttpToolCallbacks(
         httpClusterTargetFactory,
@@ -45,9 +53,13 @@ public class HttpToolConfig {
         clusterStateTool,
         getShardsTool,
         getSegmentsTool,
+        catNodesTool,
         getNodesTool,
+        getIndexInfoTool,
+        getIndexStatsTool,
         getNodesHotThreadsTool,
         getAllocationTool,
+        getLongRunningTasksTool,
         genericOpenSearchApiTool);
   }
 
