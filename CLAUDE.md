@@ -5,50 +5,67 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ## Build & Test
 
 ```bash
-# :<subproject-directory-name>:<task-name>
+# Full build + test suite
+./gradlew build
+
+# All checks: tests, Spotless formatting, JaCoCo coverage, Javadoc
+./gradlew check
+
+# Run tests only
+./gradlew test
+
+# Module-scoped tests
+./gradlew :opensearch-mcp-core:test
+./gradlew :opensearch-mcp-http:test
+./gradlew :opensearch-mcp-stdio:test
+
+# Run a single test class
+./gradlew :opensearch-mcp-core:test --tests "org.o8h.mcp.core.tool.ClusterHealthToolTest"
+
+# Integration tests (require Docker / running OpenSearch)
+./gradlew :opensearch-mcp-core:integrationTest
+./gradlew :opensearch-mcp-http:integrationTest
+
+# Apply formatter (run before committing)
+./gradlew spotlessApply
 
 # Build fat JARs (outputs to build/libs/)
 ./gradlew :opensearch-mcp-http:bootJar :opensearch-mcp-stdio:bootJar
 
-# Run all tests
-./gradlew test
+# Run locally with the `local` Spring profile
+./gradlew :opensearch-mcp-http:runLocalJar
+./gradlew :opensearch-mcp-stdio:runLocalJar
 
-# Run tests for a single module
-./gradlew :opensearch-mcp-core:test
-./gradlew :opensearch-mcp-http:test
-
-# Run a single test class
-./gradlew :opensearch-mcp-core:test --tests "org.o8h.mcp.core.tool.ClusterHealthToolTest"
+# Start the local OpenSearch stack + HTTP server
+docker compose up --build
 ```
 
 ## Module Architecture
 
 Three Gradle modules:
 
-- **opensearch-mcp-core** — shared library containing all MCP tools, OpenSearch client config, and `ClusterResolver`. No `main()` class.
-- **opensearch-mcp-http** — Spring Boot app (port 8080) using Streamable HTTP transport. Imports core via `@EnableOpensearchMcp`.
-- **opensearch-mcp-stdio** — Spring Boot app (no web server) using stdio transport. Imports core via `@EnableOpensearchMcp`.
+- **opensearch-mcp-core** — shared library: all MCP tool implementations, `ClusterResolver`, `OpenSearchConfig`. No `main()`. Unit tests live here.
+- **opensearch-mcp-http** — Spring Boot app (port 8080, actuator 8081) using Streamable HTTP transport. Activated via `@EnableOpensearchMcp`.
+- **opensearch-mcp-stdio** — Spring Boot app (no web server) using stdio transport. Same `@EnableOpensearchMcp` activation.
 
-Build conventions (Java version, test settings) live in `build-logic/src/main/kotlin/org.o8h.java-conventions.gradle.kts`.
+Build conventions (Java 25, test settings, JaCoCo) live in `build-logic/src/main/kotlin/org.o8h.java-conventions.gradle.kts`.
 
-## Key Wiring: How Tools Get Registered
+## Key Wiring: Adding a New Tool
 
-`@EnableOpensearchMcp` (in `opensearch-mcp-core`) is a meta-annotation that imports `McpToolConfig`. That config class is the single factory for all tool beans and assembles a `ToolCallbackProvider` that Spring AI's MCP server picks up automatically. Adding a new tool means: create the tool class, declare it as a bean in `McpToolConfig`.
+`@EnableOpensearchMcp` (meta-annotation in `opensearch-mcp-core`) imports `CoreToolConfig`. That config class is the single factory for all tool beans — Spring AI's MCP server picks up `ToolCallbackProvider` automatically. **To add a new tool:** create the tool class in `org.o8h.mcp.core.tool`, declare it as a `@Bean` in `CoreToolConfig`. No transport-layer changes needed.
 
 ## Dual-Mode Cluster Resolution
 
-`ClusterResolver` supports two modes:
+`ClusterResolver` resolves a `ClusterTarget` to a `RestClient`:
 
-1. **Registered clusters** — pre-configured in `application.yml` under `opensearch.clusters.<name>`. Tools receive a cluster name string, and `ClusterResolver` maps it to a `RestClient`.
-2. **Ad-hoc clusters** — HTTP transport only; tools pass a URL directly; ad-hoc target credentials come from the HTTP header `X-OpenSearch-Authorization`, and optional TLS relaxation still uses `X-OpenSearch-SSL-Disabled`. A fresh `RestClient` is built per-request. Tool calls must provide exactly one of `clusterName` or `clusterUrl`.
-
-Both modes converge on `ClusterResolver.resolve(...)` returning a `RestClient`.
+1. **Registered** (`ClusterTarget.Registered`) — cluster name mapped from `opensearch.clusters.<name>` in `application.yml`.
+2. **Ad-hoc** (`ClusterTarget.AdHoc`) — HTTP transport only; URL passed directly by the tool call. Credentials come from `X-OpenSearch-Authorization` HTTP header; TLS relaxation from `X-OpenSearch-SSL-Disabled`. Tool calls must provide exactly one of `clusterName` or `clusterUrl`.
 
 ## Configuration Shape
 
 ```yaml
 opensearch:
-  write-enabled: false        # gates POST/PUT/DELETE/PATCH in GenericOpenSearchApiTool
+  write-enabled: false        # gates POST/PUT/DELETE/PATCH in GenericOpenSearchApiTool (callApi)
   clusters:
     my-cluster:
       url: https://localhost:9200
@@ -57,36 +74,25 @@ opensearch:
       ssl-verification-disabled: true
 ```
 
-Local overrides go in `application-local.yml` (git-ignored). Activate with `--spring.profiles.active=local`.
-
-## MCP Tools Inventory
-
-All tools live in `opensearch-mcp-core/src/main/java/org/o8h/mcp/core/tool/`:
-
-| Tool                       | Purpose                                                |
-|----------------------------|--------------------------------------------------------|
-| `ListClustersTool`         | Lists registered cluster names                         |
-| `ClusterHealthTool`        | Cluster/index health                                   |
-| `ClusterStateTool`         | Full cluster state                                     |
-| `GetShardsTool`            | Shard allocation info                                  |
-| `GetSegmentsTool`          | Segment stats                                          |
-| `GetNodesTool`             | Node info with optional metrics filter                 |
-| `GetNodesHotThreadsTool`   | Hot thread stacks                                      |
-| `GetAllocationTool`        | Shard allocation explanation                           |
-| `GenericOpenSearchApiTool` | Any OpenSearch endpoint; respects `write-enabled` flag |
-
-## HTTP Transport Endpoints
-
-```
-POST   /mcp    Initialize session / send requests
-GET    /mcp    Open SSE stream (server → client)
-DELETE /mcp    Terminate session
-```
-
-Actuator runs on port 8081.
+Local overrides go in `application-local.yml` (git-ignored). Activate with `--spring.profiles.active=local`. Tests can also read a repo-root `_test.yml`.
 
 ## Testing Patterns
 
-Unit tests mock `RestClient` using `MockRestServiceServer`. See `ClusterHealthToolTest` for the canonical pattern. The test `application.yml` in each module's `src/test/resources/` defines a dummy cluster so `OpenSearchConfig` initializes without a live server.
+Unit tests use JUnit 5, AssertJ, and `MockRestServiceServer` to mock `RestClient` at the HTTP level — no Mockito mocking of `RestClient` itself. See `ClusterHealthToolTest` for the canonical pattern:
 
-Integration tests (`ToolsIntegrationTest`) require a running OpenSearch instance or explicit mocking at the HTTP level.
+```java
+RestClient.Builder builder = RestClient.builder().baseUrl("http://localhost:9200");
+MockRestServiceServer mockServer = MockRestServiceServer.bindTo(builder).build();
+RestClient client = builder.build();
+MyTool tool = new MyTool(new ClusterResolver(Map.of("local", client)));
+```
+
+Name test methods descriptively: `getClusterHealth_unknownCluster_returnsError`. Integration tests use Testcontainers (see `ToolsIntegrationTest` and `OpenSearchClusterFixture`).
+
+## Coding & Commit Conventions
+
+- Java 25, package `org.o8h.mcp.*`, 4-space indent, PascalCase classes, lowerCamelCase methods/fields.
+- Commit subjects use conventional prefixes: `feat:`, `fix:`, `refactor:`, `build:`, `docs:`, `chore:`.
+- Develop each feature/bugfix in a fresh git worktree (`.worktrees/` is git-ignored).
+- Use `.github/pull_request_template.md` and `gh pr create` when opening PRs.
+- Reference `.mcp.example.json` for local MCP client setup; never commit real credentials.

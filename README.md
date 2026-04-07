@@ -12,7 +12,7 @@ OpenSearch MCP server for cluster inspection, diagnostics, and direct API access
 Most tools accept exactly one of these connection inputs:
 
 - `clusterName`: a registered cluster name returned by `listClusters`
-- `clusterUrl`: an ad-hoc OpenSearch URL for HTTP transport only. When using `clusterUrl`, send `X-OpenSearch-Authorization: <scheme> <credentials>` on the MCP request.
+- `clusterUrl`: **HTTP transport only.** An ad-hoc OpenSearch URL for clusters not registered in server config. When using `clusterUrl`, send `X-OpenSearch-Authorization: <scheme> <credentials>` on the MCP request.
 
 If both `clusterName` and `clusterUrl` are provided, the request is rejected.
 If `clusterName` is used, `X-OpenSearch-Authorization` is ignored.
@@ -34,3 +34,5 @@ If `clusterName` is used, `X-OpenSearch-Authorization` is ignored.
 | `callApi`            | Calls any OpenSearch API path not covered by dedicated tools.                   | `clusterName` or `clusterUrl`, `path`, `method`, optional `queryParams`, optional `body`, optional `headers` |
 
 `callApi` supports `GET`, `POST`, `PUT`, `DELETE`, `PATCH`, and `HEAD`. Write methods (`POST`, `PUT`, `DELETE`, `PATCH`) require `opensearch.write-enabled=true`.
+
+> **Note:** `clusterUrl` is available on the HTTP transport only. Use `clusterName` when connecting over `stdio`.
