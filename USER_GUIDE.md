@@ -208,7 +208,7 @@ For the full tool list and parameter reference, see [README.md](README.md).
 ### Choose the right connection mode
 
 - Use `clusterName` when the target cluster is registered in server config. Start with `listClusters` to discover available names.
-- Use `clusterUrl` only on the HTTP transport when you want one-off access to a cluster that is not registered.
+- Use `clusterUrl` **only on the HTTP transport** for one-off access to a cluster that is not registered.
 - If you use `clusterUrl`, configure `X-OpenSearch-Authorization` on the MCP request path. The `stdio` transport does not support ad-hoc `clusterUrl`.
 
 ### Typical workflow
