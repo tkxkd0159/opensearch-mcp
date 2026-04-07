@@ -1,4 +1,4 @@
-package org.o8h.mcp.core.tool.support;
+package org.o8h.mcp.core.test.support;
 
 import com.jayway.jsonpath.DocumentContext;
 import com.jayway.jsonpath.JsonPath;
@@ -29,6 +29,7 @@ public final class OpenSearchClusterFixture {
       DockerImageName.parse("opensearchproject/opensearch:3.5.0");
 
   private static @Nullable FixtureState fixtureState;
+  private static boolean shutdownHookRegistered;
 
   private OpenSearchClusterFixture() {}
 
@@ -42,6 +43,7 @@ public final class OpenSearchClusterFixture {
         waitForTwoNodes(fixtureClient);
         seedBooksIndex(fixtureClient);
         fixtureState = candidate;
+        registerShutdownHook();
       } catch (RuntimeException e) {
         candidate.close();
         throw e;
@@ -59,8 +61,18 @@ public final class OpenSearchClusterFixture {
     registry.add("opensearch.clusters.local.ssl-verification-disabled", () -> true);
   }
 
+  private static synchronized void registerShutdownHook() {
+    if (shutdownHookRegistered) {
+      return;
+    }
+
+    Runtime.getRuntime()
+        .addShutdownHook(new Thread(OpenSearchClusterFixture::stop, "opensearch-core-it-shutdown"));
+    shutdownHookRegistered = true;
+  }
+
   /** Stops the shared two-node cluster and releases the Docker network. */
-  public static synchronized void stop() {
+  private static synchronized void stop() {
     FixtureState current = fixtureState;
     fixtureState = null;
     if (current != null) {

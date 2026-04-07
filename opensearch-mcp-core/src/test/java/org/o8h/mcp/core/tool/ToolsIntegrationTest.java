@@ -8,21 +8,18 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
-import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.o8h.mcp.core.config.CoreToolConfig;
 import org.o8h.mcp.core.opensearch.ClusterTarget;
 import org.o8h.mcp.core.opensearch.OpenSearchConfig;
-import org.o8h.mcp.core.tool.support.OpenSearchClusterFixture;
+import org.o8h.mcp.core.test.support.AbstractOpenSearchIntegrationTest;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.context.DynamicPropertyRegistry;
-import org.springframework.test.context.DynamicPropertySource;
 import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 
 @Tag("integration")
 @SpringJUnitConfig(classes = {OpenSearchConfig.class, CoreToolConfig.class})
-class ToolsIntegrationTest {
+class ToolsIntegrationTest extends AbstractOpenSearchIntegrationTest {
 
   private static final ClusterTarget.Registered LOCAL = new ClusterTarget.Registered("local");
 
@@ -38,16 +35,6 @@ class ToolsIntegrationTest {
   @Autowired private GetNodesHotThreadsTool getNodesHotThreadsTool;
   @Autowired private GetLongRunningTasksTool getLongRunningTasksTool;
   @Autowired private GenericOpenSearchApiTool genericOpenSearchApiTool;
-
-  @DynamicPropertySource
-  static void registerProperties(DynamicPropertyRegistry registry) {
-    OpenSearchClusterFixture.registerLocalClusterProperties(registry);
-  }
-
-  @AfterAll
-  static void stopCluster() {
-    OpenSearchClusterFixture.stop();
-  }
 
   @Test
   void clusterHealth_reportsTwoNodes() {
