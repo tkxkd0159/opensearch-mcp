@@ -34,7 +34,23 @@ public class HttpToolCallbacks {
   private final GetLongRunningTasksTool getLongRunningTasksTool;
   private final GenericOpenSearchApiTool genericOpenSearchApiTool;
 
-  /** Creates a new callbacks adapter for the HTTP transport. */
+  /**
+   * Creates a new callbacks adapter for the HTTP transport.
+   *
+   * @param clusterTargetFactory factory that resolves registered and ad-hoc cluster targets
+   * @param clusterHealthTool tool that retrieves cluster health information
+   * @param clusterStateTool tool that retrieves cluster state information
+   * @param getShardsTool tool that lists shard information
+   * @param getSegmentsTool tool that retrieves segment information
+   * @param catNodesTool tool that lists CAT node information
+   * @param getNodesTool tool that retrieves node information
+   * @param getIndexInfoTool tool that retrieves index metadata
+   * @param getIndexStatsTool tool that retrieves index statistics
+   * @param getNodesHotThreadsTool tool that retrieves node hot threads information
+   * @param getAllocationTool tool that retrieves shard allocation information
+   * @param getLongRunningTasksTool tool that retrieves long-running task information
+   * @param genericOpenSearchApiTool tool that calls arbitrary OpenSearch APIs
+   */
   public HttpToolCallbacks(
       HttpClusterTargetFactory clusterTargetFactory,
       ClusterHealthTool clusterHealthTool,
@@ -64,6 +80,14 @@ public class HttpToolCallbacks {
     this.genericOpenSearchApiTool = genericOpenSearchApiTool;
   }
 
+  /**
+   * Returns cluster health information for a registered or ad-hoc cluster target.
+   *
+   * @param clusterName registered cluster name, or {@code null} when using {@code clusterUrl}
+   * @param clusterUrl ad-hoc cluster URL, or {@code null} when using {@code clusterName}
+   * @param index optional index selector
+   * @return cluster health response payload
+   */
   @Tool(
       description =
           "Returns basic information about the health of an OpenSearch cluster, including status (green/yellow/red), number of nodes, active shards, and relocating/unassigned shards.")
@@ -87,6 +111,15 @@ public class HttpToolCallbacks {
         clusterTargetFactory.create(clusterName, clusterUrl), index);
   }
 
+  /**
+   * Returns cluster state information for a registered or ad-hoc cluster target.
+   *
+   * @param clusterName registered cluster name, or {@code null} when using {@code clusterUrl}
+   * @param clusterUrl ad-hoc cluster URL, or {@code null} when using {@code clusterName}
+   * @param metrics optional comma-separated state metrics selector
+   * @param indices optional comma-separated index selector
+   * @return cluster state response payload
+   */
   @Tool(
       description =
           "Gets the current state of an OpenSearch cluster including node information, index metadata, shard routing, and blocks. Metrics can be filtered to: nodes, metadata, blocks, routing_table, routing_nodes, version, state_uuid. Indices can be filtered by name or wildcard.")
@@ -115,6 +148,14 @@ public class HttpToolCallbacks {
         clusterTargetFactory.create(clusterName, clusterUrl), metrics, indices);
   }
 
+  /**
+   * Returns shard information for a registered or ad-hoc cluster target.
+   *
+   * @param clusterName registered cluster name, or {@code null} when using {@code clusterUrl}
+   * @param clusterUrl ad-hoc cluster URL, or {@code null} when using {@code clusterName}
+   * @param index optional index selector
+   * @return shard response payload
+   */
   @Tool(
       description =
           "Gets information about shards in an OpenSearch cluster, including shard state, size, node assignment, and primary/replica status.")
@@ -136,6 +177,14 @@ public class HttpToolCallbacks {
     return getShardsTool.getShards(clusterTargetFactory.create(clusterName, clusterUrl), index);
   }
 
+  /**
+   * Returns Lucene segment information for a registered or ad-hoc cluster target.
+   *
+   * @param clusterName registered cluster name, or {@code null} when using {@code clusterUrl}
+   * @param clusterUrl ad-hoc cluster URL, or {@code null} when using {@code clusterName}
+   * @param index optional index selector
+   * @return segment response payload
+   */
   @Tool(
       description =
           "Gets information about Lucene segments in OpenSearch indices, including memory usage, document counts, segment sizes, and whether segments are committed or searchable.")
@@ -158,6 +207,14 @@ public class HttpToolCallbacks {
     return getSegmentsTool.getSegments(clusterTargetFactory.create(clusterName, clusterUrl), index);
   }
 
+  /**
+   * Returns CAT node information for a registered or ad-hoc cluster target.
+   *
+   * @param clusterName registered cluster name, or {@code null} when using {@code clusterUrl}
+   * @param clusterUrl ad-hoc cluster URL, or {@code null} when using {@code clusterName}
+   * @param columns optional CAT column selector
+   * @return CAT nodes response payload
+   */
   @Tool(
       description =
           "Lists node-level CAT information in an OpenSearch cluster, including node roles and load metrics. Columns can be limited to a comma-separated list of CAT node column names.")
@@ -180,6 +237,15 @@ public class HttpToolCallbacks {
     return catNodesTool.catNodes(clusterTargetFactory.create(clusterName, clusterUrl), columns);
   }
 
+  /**
+   * Returns node details for a registered or ad-hoc cluster target.
+   *
+   * @param clusterName registered cluster name, or {@code null} when using {@code clusterUrl}
+   * @param clusterUrl ad-hoc cluster URL, or {@code null} when using {@code clusterName}
+   * @param nodeId optional node selector
+   * @param metrics optional node metrics selector
+   * @return node response payload
+   */
   @Tool(
       description =
           "Gets detailed information about nodes in an OpenSearch cluster, including static information like host system details, JVM info, processor type, node settings, thread pools, and installed plugins. Metrics can be filtered to categories like: settings, os, process, jvm, thread_pool, transport, http, plugins, ingest.")
@@ -207,6 +273,14 @@ public class HttpToolCallbacks {
         clusterTargetFactory.create(clusterName, clusterUrl), nodeId, metrics);
   }
 
+  /**
+   * Returns metadata for the requested index selector.
+   *
+   * @param clusterName registered cluster name, or {@code null} when using {@code clusterUrl}
+   * @param clusterUrl ad-hoc cluster URL, or {@code null} when using {@code clusterName}
+   * @param index required index selector
+   * @return index metadata response payload
+   */
   @Tool(
       description =
           "Gets detailed information about an index including mappings, settings, and aliases. The index selector may be a concrete index name, alias, or wildcard pattern.")
@@ -229,6 +303,15 @@ public class HttpToolCallbacks {
         clusterTargetFactory.create(clusterName, clusterUrl), index);
   }
 
+  /**
+   * Returns statistics for the requested index selector.
+   *
+   * @param clusterName registered cluster name, or {@code null} when using {@code clusterUrl}
+   * @param clusterUrl ad-hoc cluster URL, or {@code null} when using {@code clusterName}
+   * @param index optional index selector
+   * @param metrics optional stats metrics selector
+   * @return index stats response payload
+   */
   @Tool(
       description =
           "Gets index statistics including document counts, store size, and indexing or search metrics. Index selectors are index names, aliases, or wildcard patterns.")
@@ -257,6 +340,14 @@ public class HttpToolCallbacks {
         clusterTargetFactory.create(clusterName, clusterUrl), index, metrics);
   }
 
+  /**
+   * Returns hot threads information for selected nodes.
+   *
+   * @param clusterName registered cluster name, or {@code null} when using {@code clusterUrl}
+   * @param clusterUrl ad-hoc cluster URL, or {@code null} when using {@code clusterName}
+   * @param nodeId optional node selector
+   * @return hot threads response payload
+   */
   @Tool(
       description =
           "Gets information about hot threads on nodes in an OpenSearch cluster. Returns a breakdown of the hot threads on each selected node, useful for diagnosing performance issues.")
@@ -279,6 +370,14 @@ public class HttpToolCallbacks {
         clusterTargetFactory.create(clusterName, clusterUrl), nodeId);
   }
 
+  /**
+   * Returns shard allocation information for selected nodes.
+   *
+   * @param clusterName registered cluster name, or {@code null} when using {@code clusterUrl}
+   * @param clusterUrl ad-hoc cluster URL, or {@code null} when using {@code clusterName}
+   * @param nodeId optional node selector
+   * @return allocation response payload
+   */
   @Tool(
       description =
           "Gets information about shard allocation across nodes in an OpenSearch cluster, including disk usage, shard counts per node, and available disk space.")
@@ -302,6 +401,14 @@ public class HttpToolCallbacks {
         clusterTargetFactory.create(clusterName, clusterUrl), nodeId);
   }
 
+  /**
+   * Returns currently running tasks for a registered or ad-hoc cluster target.
+   *
+   * @param clusterName registered cluster name, or {@code null} when using {@code clusterUrl}
+   * @param clusterUrl ad-hoc cluster URL, or {@code null} when using {@code clusterName}
+   * @param minRunningSeconds optional minimum running time filter in seconds
+   * @return tasks response payload
+   */
   @Tool(
       description =
           "Gets currently running tasks in an OpenSearch cluster, sorted by running time descending. Optionally filters the result to tasks running at least the requested number of seconds.")
@@ -326,6 +433,18 @@ public class HttpToolCallbacks {
         clusterTargetFactory.create(clusterName, clusterUrl), minRunningSeconds);
   }
 
+  /**
+   * Calls an arbitrary OpenSearch API for a registered or ad-hoc cluster target.
+   *
+   * @param clusterName registered cluster name, or {@code null} when using {@code clusterUrl}
+   * @param clusterUrl ad-hoc cluster URL, or {@code null} when using {@code clusterName}
+   * @param path API path that starts with {@code /}
+   * @param method optional HTTP method
+   * @param queryParams optional query string parameters
+   * @param body optional raw JSON request body
+   * @param headers optional additional HTTP headers
+   * @return API response payload
+   */
   @Tool(
       description =
           """
