@@ -8,7 +8,7 @@ opensearch-testcontainers = "4.1.0"
 spotless = "7.2.1"
 spring-boot = "4.0.5"
 spring-ai = "2.0.0-M4"
-testcontainers = "2.0.4"
+testcontainers = "2.0.5"
 
 [libraries]
 errorprone-core = { module = "com.google.errorprone:error_prone_core", version.ref = "errorprone" }
