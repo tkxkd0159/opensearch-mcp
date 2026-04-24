@@ -6,7 +6,7 @@ jspecify = "1.0.0"
 nullaway = "0.12.12"
 opensearch-testcontainers = "4.1.0"
 spotless = "7.2.1"
-spring-boot = "4.0.5"
+spring-boot = "4.0.6"
 spring-ai = "2.0.0-M4"
 testcontainers = "2.0.4"
 
